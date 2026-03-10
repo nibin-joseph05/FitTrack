@@ -31,6 +31,14 @@ class ExerciseNotifier extends AsyncNotifier<List<ExerciseEntity>> {
     required String muscleGroup,
     required String category,
     String? description,
+    String? secondaryMuscleGroup,
+    String? exerciseType,
+    String? equipmentType,
+    String? difficulty,
+    String? instructions,
+    String? notes,
+    String? imagePath,
+    String? videoUrl,
   }) async {
     const uuid = Uuid();
     final exercise = ExerciseEntity(
@@ -41,6 +49,15 @@ class ExerciseNotifier extends AsyncNotifier<List<ExerciseEntity>> {
       description: description,
       createdAt: DateTime.now(),
       isCustom: true,
+      secondaryMuscleGroup: secondaryMuscleGroup,
+      exerciseType: exerciseType,
+      equipmentType: equipmentType,
+      difficulty: difficulty,
+      instructions: instructions,
+      notes: notes,
+      imagePath: imagePath,
+      videoUrl: videoUrl,
+      isFavorite: false,
     );
     await ref.read(createExerciseUseCaseProvider).call(exercise);
     ref.invalidateSelf();
@@ -54,18 +71,44 @@ class ExerciseNotifier extends AsyncNotifier<List<ExerciseEntity>> {
 
 final exerciseProvider =
     AsyncNotifierProvider<ExerciseNotifier, List<ExerciseEntity>>(
-      ExerciseNotifier.new,
-    );
+  ExerciseNotifier.new,
+);
 
 final exerciseFilterProvider = StateProvider<String>((ref) => 'All');
+final exerciseEquipmentFilterProvider = StateProvider<String?>((ref) => null);
+final exerciseTypeFilterProvider = StateProvider<String?>((ref) => null);
+final exerciseSearchQueryProvider = StateProvider<String>((ref) => '');
 
 final filteredExercisesProvider = Provider<AsyncValue<List<ExerciseEntity>>>((
   ref,
 ) {
   final exercises = ref.watch(exerciseProvider);
   final filter = ref.watch(exerciseFilterProvider);
+  final equipmentFilter = ref.watch(exerciseEquipmentFilterProvider);
+  final typeFilter = ref.watch(exerciseTypeFilterProvider);
+  final search = ref.watch(exerciseSearchQueryProvider).toLowerCase();
+
   return exercises.whenData((list) {
-    if (filter == 'All') return list;
-    return list.where((e) => e.muscleGroup == filter).toList();
+    var filtered = list;
+
+    if (filter != 'All') {
+      filtered = filtered.where((e) => e.muscleGroup == filter).toList();
+    }
+
+    if (equipmentFilter != null && equipmentFilter != 'All') {
+      filtered =
+          filtered.where((e) => e.equipmentType == equipmentFilter).toList();
+    }
+
+    if (typeFilter != null && typeFilter != 'All') {
+      filtered = filtered.where((e) => e.exerciseType == typeFilter).toList();
+    }
+
+    if (search.isNotEmpty) {
+      filtered =
+          filtered.where((e) => e.name.toLowerCase().contains(search)).toList();
+    }
+
+    return filtered;
   });
 });

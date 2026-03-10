@@ -1,4 +1,10 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
 part of 'exercise_model.dart';
+
+// **************************************************************************
+// TypeAdapterGenerator
+// **************************************************************************
 
 class ExerciseModelAdapter extends TypeAdapter<ExerciseModel> {
   @override
@@ -18,13 +24,22 @@ class ExerciseModelAdapter extends TypeAdapter<ExerciseModel> {
       description: fields[4] as String?,
       createdAt: fields[5] as DateTime,
       isCustom: fields[6] as bool,
+      secondaryMuscleGroup: fields[7] as String?,
+      exerciseType: fields[8] as String?,
+      equipmentType: fields[9] as String?,
+      difficulty: fields[10] as String?,
+      instructions: fields[11] as String?,
+      notes: fields[12] as String?,
+      imagePath: fields[13] as String?,
+      videoUrl: fields[14] as String?,
+      isFavorite: fields[15] as bool,
     );
   }
 
   @override
   void write(BinaryWriter writer, ExerciseModel obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(16)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -38,7 +53,25 @@ class ExerciseModelAdapter extends TypeAdapter<ExerciseModel> {
       ..writeByte(5)
       ..write(obj.createdAt)
       ..writeByte(6)
-      ..write(obj.isCustom);
+      ..write(obj.isCustom)
+      ..writeByte(7)
+      ..write(obj.secondaryMuscleGroup)
+      ..writeByte(8)
+      ..write(obj.exerciseType)
+      ..writeByte(9)
+      ..write(obj.equipmentType)
+      ..writeByte(10)
+      ..write(obj.difficulty)
+      ..writeByte(11)
+      ..write(obj.instructions)
+      ..writeByte(12)
+      ..write(obj.notes)
+      ..writeByte(13)
+      ..write(obj.imagePath)
+      ..writeByte(14)
+      ..write(obj.videoUrl)
+      ..writeByte(15)
+      ..write(obj.isFavorite);
   }
 
   @override

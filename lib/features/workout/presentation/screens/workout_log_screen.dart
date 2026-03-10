@@ -62,7 +62,8 @@ class _WorkoutLogScreenState extends ConsumerState<WorkoutLogScreen> {
         sets: [
           const WorkoutSetEntity(
             setNumber: 1,
-            reps: 10,
+            targetReps: 10,
+            completedReps: 0,
             weight: 0,
             isCompleted: false,
           ),
@@ -357,9 +358,10 @@ class _ExerciseCardState extends ConsumerState<_ExerciseCard> {
       ...widget.exercise.sets,
       WorkoutSetEntity(
         setNumber: widget.exercise.sets.length + 1,
-        reps: widget.exercise.sets.isNotEmpty
-            ? widget.exercise.sets.last.reps
+        targetReps: widget.exercise.sets.isNotEmpty
+            ? widget.exercise.sets.last.targetReps
             : 10,
+        completedReps: 0,
         weight: widget.exercise.sets.isNotEmpty
             ? widget.exercise.sets.last.weight
             : 0,

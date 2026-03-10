@@ -33,6 +33,9 @@ class BodyMetricModel extends HiveObject {
   final double? thighCm;
 
   @HiveField(9)
+  final double? calvesCm;
+
+  @HiveField(10)
   final String? notes;
 
   BodyMetricModel({
@@ -45,6 +48,7 @@ class BodyMetricModel extends HiveObject {
     this.hipCm,
     this.armCm,
     this.thighCm,
+    this.calvesCm,
     this.notes,
   });
 }

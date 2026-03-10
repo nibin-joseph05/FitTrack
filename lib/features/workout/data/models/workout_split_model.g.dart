@@ -1,42 +1,42 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'workout_exercise_model.dart';
+part of 'workout_split_model.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
 // **************************************************************************
 
-class WorkoutExerciseModelAdapter extends TypeAdapter<WorkoutExerciseModel> {
+class WorkoutSplitModelAdapter extends TypeAdapter<WorkoutSplitModel> {
   @override
-  final int typeId = 2;
+  final int typeId = 6;
 
   @override
-  WorkoutExerciseModel read(BinaryReader reader) {
+  WorkoutSplitModel read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return WorkoutExerciseModel(
-      exerciseId: fields[0] as String,
-      exerciseName: fields[1] as String,
-      muscleGroup: fields[2] as String,
-      sets: (fields[3] as List).cast<WorkoutSetModel>(),
+    return WorkoutSplitModel(
+      id: fields[0] as String,
+      name: fields[1] as String,
+      exerciseIds: (fields[2] as List).cast<String>(),
+      dayOfWeek: fields[3] as int?,
       notes: fields[4] as String?,
     );
   }
 
   @override
-  void write(BinaryWriter writer, WorkoutExerciseModel obj) {
+  void write(BinaryWriter writer, WorkoutSplitModel obj) {
     writer
       ..writeByte(5)
       ..writeByte(0)
-      ..write(obj.exerciseId)
+      ..write(obj.id)
       ..writeByte(1)
-      ..write(obj.exerciseName)
+      ..write(obj.name)
       ..writeByte(2)
-      ..write(obj.muscleGroup)
+      ..write(obj.exerciseIds)
       ..writeByte(3)
-      ..write(obj.sets)
+      ..write(obj.dayOfWeek)
       ..writeByte(4)
       ..write(obj.notes);
   }
@@ -47,7 +47,7 @@ class WorkoutExerciseModelAdapter extends TypeAdapter<WorkoutExerciseModel> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is WorkoutExerciseModelAdapter &&
+      other is WorkoutSplitModelAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

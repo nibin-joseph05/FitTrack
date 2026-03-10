@@ -1,4 +1,10 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
 part of 'body_metric_model.dart';
+
+// **************************************************************************
+// TypeAdapterGenerator
+// **************************************************************************
 
 class BodyMetricModelAdapter extends TypeAdapter<BodyMetricModel> {
   @override
@@ -20,14 +26,15 @@ class BodyMetricModelAdapter extends TypeAdapter<BodyMetricModel> {
       hipCm: fields[6] as double?,
       armCm: fields[7] as double?,
       thighCm: fields[8] as double?,
-      notes: fields[9] as String?,
+      calvesCm: fields[9] as double?,
+      notes: fields[10] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, BodyMetricModel obj) {
     writer
-      ..writeByte(10)
+      ..writeByte(11)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -47,6 +54,8 @@ class BodyMetricModelAdapter extends TypeAdapter<BodyMetricModel> {
       ..writeByte(8)
       ..write(obj.thighCm)
       ..writeByte(9)
+      ..write(obj.calvesCm)
+      ..writeByte(10)
       ..write(obj.notes);
   }
 

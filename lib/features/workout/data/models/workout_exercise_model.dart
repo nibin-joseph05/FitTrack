@@ -29,7 +29,8 @@ class WorkoutExerciseModel extends HiveObject {
     this.notes,
   });
 
-  double get totalVolume => sets.fold(0, (sum, s) => sum + (s.reps * s.weight));
+  double get totalVolume =>
+      sets.fold(0, (sum, s) => sum + (s.completedReps * s.weight));
 
   int get totalSets => sets.length;
 

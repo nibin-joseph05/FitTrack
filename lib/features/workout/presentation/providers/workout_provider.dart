@@ -140,3 +140,39 @@ final activeWorkoutProvider =
     NotifierProvider<ActiveWorkoutNotifier, ActiveWorkoutState?>(
   ActiveWorkoutNotifier.new,
 );
+
+class DateTimeRange {
+  final DateTime start;
+  final DateTime end;
+  DateTimeRange({required this.start, required this.end});
+}
+
+final workoutDateFilterProvider = StateProvider<DateTimeRange?>((ref) => null);
+final workoutExerciseFilterProvider = StateProvider<String?>((ref) => null);
+
+final filteredWorkoutHistoryProvider =
+    Provider<AsyncValue<List<WorkoutLogEntity>>>((ref) {
+  final history = ref.watch(workoutHistoryProvider);
+  final dateRange = ref.watch(workoutDateFilterProvider);
+  final exerciseId = ref.watch(workoutExerciseFilterProvider);
+
+  return history.whenData((list) {
+    var filtered = list;
+
+    if (dateRange != null) {
+      filtered = filtered.where((w) {
+        return w.date.isAfter(
+                dateRange.start.subtract(const Duration(seconds: 1))) &&
+            w.date.isBefore(dateRange.end.add(const Duration(days: 1)));
+      }).toList();
+    }
+
+    if (exerciseId != null) {
+      filtered = filtered.where((w) {
+        return w.exercises.any((e) => e.exerciseId == exerciseId);
+      }).toList();
+    }
+
+    return filtered;
+  });
+});

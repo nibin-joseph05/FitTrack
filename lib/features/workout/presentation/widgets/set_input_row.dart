@@ -26,7 +26,8 @@ class _SetInputRowState extends State<SetInputRow> {
   @override
   void initState() {
     super.initState();
-    _repsController = TextEditingController(text: widget.set.reps.toString());
+    _repsController =
+        TextEditingController(text: widget.set.targetReps.toString());
     _weightController = TextEditingController(
       text: widget.set.weight.toString(),
     );
@@ -40,9 +41,11 @@ class _SetInputRowState extends State<SetInputRow> {
   }
 
   void _emit() {
-    final reps = int.tryParse(_repsController.text) ?? widget.set.reps;
+    final targetReps =
+        int.tryParse(_repsController.text) ?? widget.set.targetReps;
     final weight = double.tryParse(_weightController.text) ?? widget.set.weight;
-    widget.onChanged(widget.set.copyWith(reps: reps, weight: weight));
+    widget.onChanged(widget.set.copyWith(
+        targetReps: targetReps, completedReps: targetReps, weight: weight));
   }
 
   @override

@@ -8,6 +8,7 @@ class BodyMetricEntity {
   final double? hipCm;
   final double? armCm;
   final double? thighCm;
+  final double? calvesCm;
   final String? notes;
 
   const BodyMetricEntity({
@@ -20,6 +21,7 @@ class BodyMetricEntity {
     this.hipCm,
     this.armCm,
     this.thighCm,
+    this.calvesCm,
     this.notes,
   });
 

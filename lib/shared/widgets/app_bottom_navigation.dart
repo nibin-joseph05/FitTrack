@@ -31,6 +31,12 @@ class AppBottomNavigation extends StatelessWidget {
             label: 'Home',
           ),
           NavigationDestination(
+            icon: Icon(Icons.format_list_bulleted_outlined),
+            selectedIcon:
+                Icon(Icons.format_list_bulleted, color: AppColors.primary),
+            label: 'Exercises',
+          ),
+          NavigationDestination(
             icon: Icon(Icons.fitness_center_outlined),
             selectedIcon: Icon(Icons.fitness_center, color: AppColors.primary),
             label: 'Workout',
@@ -39,6 +45,11 @@ class AppBottomNavigation extends StatelessWidget {
             icon: Icon(Icons.bar_chart_outlined),
             selectedIcon: Icon(Icons.bar_chart, color: AppColors.primary),
             label: 'Progress',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.timer_outlined),
+            selectedIcon: Icon(Icons.timer, color: AppColors.primary),
+            label: 'Timer',
           ),
           NavigationDestination(
             icon: Icon(Icons.monitor_weight_outlined),

@@ -195,7 +195,7 @@ class _ExerciseDetailCard extends StatelessWidget {
               child: Row(
                 children: [
                   _SetCell(s.setNumber.toString()),
-                  _SetCell(s.reps.toString()),
+                  _SetCell('${s.completedReps}/${s.targetReps}'),
                   _SetCell(FormatUtils.formatWeightCompact(s.weight)),
                   _SetCell(FormatUtils.formatVolume(s.volume)),
                 ],

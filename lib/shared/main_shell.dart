@@ -6,6 +6,8 @@ import '../../features/workout/presentation/screens/workout_log_screen.dart';
 import '../../features/progress/presentation/screens/progress_screen.dart';
 import '../../features/body_metrics/presentation/screens/body_metrics_screen.dart';
 import '../../features/settings/presentation/screens/settings_screen.dart';
+import '../../features/exercise/presentation/screens/exercise_library_screen.dart';
+import '../../features/timer/presentation/screens/timer_screen.dart';
 
 final _currentIndexProvider = StateProvider<int>((ref) => 0);
 
@@ -14,8 +16,10 @@ class MainShell extends ConsumerWidget {
 
   static const _screens = [
     HomeScreen(),
+    ExerciseLibraryScreen(),
     WorkoutLogScreen(),
     ProgressScreen(),
+    TimerScreen(),
     BodyMetricsScreen(),
     SettingsScreen(),
   ];

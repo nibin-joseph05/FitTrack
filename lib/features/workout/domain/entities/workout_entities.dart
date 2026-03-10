@@ -1,31 +1,47 @@
 class WorkoutSetEntity {
   final int setNumber;
-  final int reps;
+  final int targetReps;
+  final int completedReps;
   final double weight;
+  final int? rir;
+  final int? rpe;
+  final int? restTimeSeconds;
   final bool isCompleted;
 
   const WorkoutSetEntity({
     required this.setNumber,
-    required this.reps,
+    required this.targetReps,
+    required this.completedReps,
     required this.weight,
+    this.rir,
+    this.rpe,
+    this.restTimeSeconds,
     required this.isCompleted,
   });
 
   WorkoutSetEntity copyWith({
     int? setNumber,
-    int? reps,
+    int? targetReps,
+    int? completedReps,
     double? weight,
+    int? rir,
+    int? rpe,
+    int? restTimeSeconds,
     bool? isCompleted,
   }) {
     return WorkoutSetEntity(
       setNumber: setNumber ?? this.setNumber,
-      reps: reps ?? this.reps,
+      targetReps: targetReps ?? this.targetReps,
+      completedReps: completedReps ?? this.completedReps,
       weight: weight ?? this.weight,
+      rir: rir ?? this.rir,
+      rpe: rpe ?? this.rpe,
+      restTimeSeconds: restTimeSeconds ?? this.restTimeSeconds,
       isCompleted: isCompleted ?? this.isCompleted,
     );
   }
 
-  double get volume => reps * weight;
+  double get volume => completedReps * weight;
 }
 
 class WorkoutExerciseEntity {

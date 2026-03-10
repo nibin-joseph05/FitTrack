@@ -12,6 +12,8 @@ import 'features/workout/data/models/workout_set_model.dart';
 import 'features/workout/data/models/workout_exercise_model.dart';
 import 'features/workout/data/models/workout_log_model.dart';
 import 'features/body_metrics/data/models/body_metric_model.dart';
+import 'features/workout/data/models/workout_split_model.dart';
+import 'features/timer/data/models/timer_model.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,10 +39,14 @@ Future<void> main() async {
   Hive.registerAdapter(WorkoutExerciseModelAdapter());
   Hive.registerAdapter(WorkoutLogModelAdapter());
   Hive.registerAdapter(BodyMetricModelAdapter());
+  Hive.registerAdapter(WorkoutSplitModelAdapter());
+  Hive.registerAdapter(TimerModelAdapter());
 
   await Hive.openBox<ExerciseModel>(HiveBoxes.exercises);
   await Hive.openBox<WorkoutLogModel>(HiveBoxes.workoutLogs);
   await Hive.openBox<BodyMetricModel>(HiveBoxes.bodyMetrics);
+  await Hive.openBox<WorkoutSplitModel>(HiveBoxes.workoutSplits);
+  await Hive.openBox<TimerModel>(HiveBoxes.timers);
 
   await _seedDefaultExercises();
 

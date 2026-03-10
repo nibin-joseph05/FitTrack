@@ -27,6 +27,33 @@ class ExerciseModel extends HiveObject {
   @HiveField(6)
   final bool isCustom;
 
+  @HiveField(7)
+  final String? secondaryMuscleGroup;
+
+  @HiveField(8)
+  final String? exerciseType;
+
+  @HiveField(9)
+  final String? equipmentType;
+
+  @HiveField(10)
+  final String? difficulty;
+
+  @HiveField(11)
+  final String? instructions;
+
+  @HiveField(12)
+  final String? notes;
+
+  @HiveField(13)
+  final String? imagePath;
+
+  @HiveField(14)
+  final String? videoUrl;
+
+  @HiveField(15)
+  final bool isFavorite;
+
   ExerciseModel({
     required this.id,
     required this.name,
@@ -35,6 +62,15 @@ class ExerciseModel extends HiveObject {
     this.description,
     required this.createdAt,
     required this.isCustom,
+    this.secondaryMuscleGroup,
+    this.exerciseType,
+    this.equipmentType,
+    this.difficulty,
+    this.instructions,
+    this.notes,
+    this.imagePath,
+    this.videoUrl,
+    this.isFavorite = false,
   });
 
   ExerciseEntity toEntity() {
@@ -42,6 +78,15 @@ class ExerciseModel extends HiveObject {
       id: id,
       name: name,
       muscleGroup: muscleGroup,
+      secondaryMuscleGroup: secondaryMuscleGroup,
+      exerciseType: exerciseType,
+      equipmentType: equipmentType,
+      difficulty: difficulty,
+      instructions: instructions,
+      notes: notes,
+      imagePath: imagePath,
+      videoUrl: videoUrl,
+      isFavorite: isFavorite,
       category: category,
       description: description,
       createdAt: createdAt,
@@ -58,6 +103,15 @@ class ExerciseModel extends HiveObject {
       description: entity.description,
       createdAt: entity.createdAt,
       isCustom: entity.isCustom,
+      secondaryMuscleGroup: entity.secondaryMuscleGroup,
+      exerciseType: entity.exerciseType,
+      equipmentType: entity.equipmentType,
+      difficulty: entity.difficulty,
+      instructions: entity.instructions,
+      notes: entity.notes,
+      imagePath: entity.imagePath,
+      videoUrl: entity.videoUrl,
+      isFavorite: entity.isFavorite,
     );
   }
 }

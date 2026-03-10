@@ -36,8 +36,12 @@ class WorkoutRepositoryImpl implements WorkoutRepository {
           sets: e.sets.map((s) {
             return WorkoutSetModel(
               setNumber: s.setNumber,
-              reps: s.reps,
+              targetReps: s.targetReps,
+              completedReps: s.completedReps,
               weight: s.weight,
+              rir: s.rir,
+              rpe: s.rpe,
+              restTimeSeconds: s.restTimeSeconds,
               isCompleted: s.isCompleted,
             );
           }).toList(),
@@ -62,8 +66,12 @@ class WorkoutRepositoryImpl implements WorkoutRepository {
           sets: e.sets.map((s) {
             return WorkoutSetEntity(
               setNumber: s.setNumber,
-              reps: s.reps,
+              targetReps: s.targetReps,
+              completedReps: s.completedReps,
               weight: s.weight,
+              rir: s.rir,
+              rpe: s.rpe,
+              restTimeSeconds: s.restTimeSeconds,
               isCompleted: s.isCompleted,
             );
           }).toList(),
