@@ -73,7 +73,7 @@ class _CreateExerciseScreenState extends ConsumerState<CreateExerciseScreen> {
         child: ListView(
           padding: const EdgeInsets.all(20),
           children: [
-            _SectionLabel('Exercise Details'),
+            const _SectionLabel('Exercise Details'),
             const SizedBox(height: 12),
             TextFormField(
               controller: _nameController,
@@ -98,7 +98,7 @@ class _CreateExerciseScreenState extends ConsumerState<CreateExerciseScreen> {
               maxLines: 3,
             ),
             const SizedBox(height: 24),
-            _SectionLabel('Muscle Group'),
+            const _SectionLabel('Muscle Group'),
             const SizedBox(height: 12),
             Wrap(
               spacing: 8,
@@ -142,7 +142,7 @@ class _CreateExerciseScreenState extends ConsumerState<CreateExerciseScreen> {
               }).toList(),
             ),
             const SizedBox(height: 24),
-            _SectionLabel('Category'),
+            const _SectionLabel('Category'),
             const SizedBox(height: 12),
             Wrap(
               spacing: 8,

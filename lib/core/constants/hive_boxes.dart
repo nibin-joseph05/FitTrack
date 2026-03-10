@@ -5,6 +5,8 @@ class HiveBoxes {
   static const String personalRecords = 'personal_records';
   static const String workoutSplits = 'workout_splits';
   static const String timers = 'timers';
+  static const String profile = 'profile';
+  static const String attendance = 'attendance';
 }
 
 class HiveTypeIds {
@@ -16,4 +18,6 @@ class HiveTypeIds {
   static const int personalRecordModel = 5;
   static const int workoutSplitModel = 6;
   static const int timerModel = 7;
+  static const int profileModel = 8;
+  static const int attendanceModel = 9;
 }

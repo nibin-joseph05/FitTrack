@@ -58,7 +58,7 @@ class BodyMetricsScreen extends ConsumerWidget {
                     children: [
                       if (weightData.isNotEmpty) ...[
                         const SizedBox(height: 8),
-                        _SectionTitle('Weight Progress'),
+                        const _SectionTitle('Weight Progress'),
                         const SizedBox(height: 12),
                         MetricChart(
                           data: weightData
@@ -74,7 +74,7 @@ class BodyMetricsScreen extends ConsumerWidget {
                         ),
                         const SizedBox(height: 24),
                       ],
-                      _SectionTitle('History'),
+                      const _SectionTitle('History'),
                       const SizedBox(height: 12),
                       ...list.map(
                         (m) => Padding(

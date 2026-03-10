@@ -28,6 +28,10 @@ class AppDateUtils {
         date.day == now.day;
   }
 
+  static bool isSameDay(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
+
   static bool isThisWeek(DateTime date) {
     final now = DateTime.now();
     final startOfWeek = now.subtract(Duration(days: now.weekday - 1));

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/router/app_router.dart';
 import '../providers/body_metrics_provider.dart';
 
 class AddBodyMetricScreen extends ConsumerStatefulWidget {
@@ -124,7 +123,7 @@ class _AddBodyMetricScreenState extends ConsumerState<AddBodyMetricScreen> {
         children: [
           _DatePicker(date: _selectedDate, onTap: _pickDate),
           const SizedBox(height: 24),
-          _SectionLabel('Body Weight & Composition'),
+          const _SectionLabel('Body Weight & Composition'),
           const SizedBox(height: 12),
           Row(
             children: [
@@ -146,7 +145,7 @@ class _AddBodyMetricScreenState extends ConsumerState<AddBodyMetricScreen> {
             ],
           ),
           const SizedBox(height: 24),
-          _SectionLabel('Measurements (cm)'),
+          const _SectionLabel('Measurements (cm)'),
           const SizedBox(height: 12),
           _MeasurementGrid(
             entries: [
@@ -158,7 +157,7 @@ class _AddBodyMetricScreenState extends ConsumerState<AddBodyMetricScreen> {
             ],
           ),
           const SizedBox(height: 24),
-          _SectionLabel('Notes'),
+          const _SectionLabel('Notes'),
           const SizedBox(height: 12),
           TextFormField(
             controller: _notesCtrl,

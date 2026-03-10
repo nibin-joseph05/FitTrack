@@ -73,8 +73,9 @@ class MetricChart extends StatelessWidget {
                     : 1,
                 getTitlesWidget: (value, meta) {
                   final index = value.toInt();
-                  if (index >= data.length || index < 0)
+                  if (index >= data.length || index < 0) {
                     return const SizedBox();
+                  }
                   return Padding(
                     padding: const EdgeInsets.only(top: 6),
                     child: Text(

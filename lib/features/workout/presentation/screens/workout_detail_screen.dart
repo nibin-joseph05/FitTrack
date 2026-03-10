@@ -180,7 +180,7 @@ class _ExerciseDetailCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          Row(
+          const Row(
             children: [
               _SetHeader('Set'),
               _SetHeader('Reps'),
@@ -205,10 +205,10 @@ class _ExerciseDetailCard extends StatelessWidget {
           const SizedBox(height: 10),
           Row(
             children: [
-              _SetCell('Total'),
-              _SetCell('—'),
+              const _SetCell('Total'),
+              const _SetCell('—'),
               _SetCell(
-                FormatUtils.formatWeightCompact(exercise.maxWeight) + ' max',
+                '${FormatUtils.formatWeightCompact(exercise.maxWeight)} max',
               ),
               _SetCell(FormatUtils.formatVolume(exercise.totalVolume)),
             ],

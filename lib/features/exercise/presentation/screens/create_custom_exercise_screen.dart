@@ -98,7 +98,7 @@ class _CreateCustomExerciseScreenState
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
-              value: _muscleGroup,
+              initialValue: _muscleGroup,
               decoration: const InputDecoration(
                   labelText: 'Primary Muscle Group*',
                   border: OutlineInputBorder()),
@@ -109,7 +109,7 @@ class _CreateCustomExerciseScreenState
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
-              value: _secondaryMuscleGroup,
+              initialValue: _secondaryMuscleGroup,
               decoration: const InputDecoration(
                   labelText: 'Secondary Muscle Group',
                   border: OutlineInputBorder()),
@@ -126,7 +126,7 @@ class _CreateCustomExerciseScreenState
               children: [
                 Expanded(
                   child: DropdownButtonFormField<String>(
-                    value: _category,
+                    initialValue: _category,
                     decoration: const InputDecoration(
                         labelText: 'Exercise Type*',
                         border: OutlineInputBorder()),
@@ -139,7 +139,7 @@ class _CreateCustomExerciseScreenState
                 const SizedBox(width: 16),
                 Expanded(
                   child: DropdownButtonFormField<String>(
-                    value: _equipmentType,
+                    initialValue: _equipmentType,
                     decoration: const InputDecoration(
                         labelText: 'Equipment*', border: OutlineInputBorder()),
                     items: _equipment
@@ -152,7 +152,7 @@ class _CreateCustomExerciseScreenState
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
-              value: _difficulty,
+              initialValue: _difficulty,
               decoration: const InputDecoration(
                   labelText: 'Difficulty*', border: OutlineInputBorder()),
               items: _difficulties

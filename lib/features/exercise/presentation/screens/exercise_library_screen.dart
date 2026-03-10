@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/exercise_provider.dart';
 import '../../../../shared/widgets/exercise_card.dart';
+import '../../../../core/router/app_router.dart';
 
 class ExerciseLibraryScreen extends ConsumerWidget {
   const ExerciseLibraryScreen({super.key});
@@ -17,7 +18,7 @@ class ExerciseLibraryScreen extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () {
-              // TODO: Navigate to create exercise screen
+              Navigator.pushNamed(context, AppRoutes.createExercise);
             },
           ),
         ],
@@ -63,9 +64,7 @@ class ExerciseLibraryScreen extends ConsumerWidget {
                     final exercise = exercises[index];
                     return ExerciseCard(
                       exercise: exercise,
-                      onTap: () {
-                        // View details or add to workout
-                      },
+                      onTap: () {},
                     );
                   },
                 );

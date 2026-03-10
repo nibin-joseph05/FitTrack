@@ -22,12 +22,12 @@ class ProgressScreen extends ConsumerWidget {
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
-            SliverToBoxAdapter(
+            const SliverToBoxAdapter(
               child: AppHeader(subtitle: 'ANALYTICS', title: 'Progress'),
             ),
-            SliverToBoxAdapter(
+            const SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                padding: EdgeInsets.fromLTRB(16, 0, 16, 0),
                 child: _SectionTitle('Weekly Volume'),
               ),
             ),
@@ -42,9 +42,33 @@ class ProgressScreen extends ConsumerWidget {
                 ),
               ),
             ),
+            const SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(16, 0, 16, 12),
+                child: _SectionTitle('Training Frequency'),
+              ),
+            ),
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                child: _TrainingFrequencyChart(),
+              ),
+            ),
+            const SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(16, 0, 16, 12),
+                child: _SectionTitle('Body Weight Progress'),
+              ),
+            ),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                child: _BodyWeightChart(),
+              ),
+            ),
+            const SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(16, 0, 16, 12),
                 child: _SectionTitle('Strength Progress'),
               ),
             ),
@@ -75,14 +99,11 @@ class ProgressScreen extends ConsumerWidget {
                             final (id, name) = list[i];
                             final selected = selectedId == id;
                             return GestureDetector(
-                              onTap: () =>
-                                  ref
-                                          .read(
-                                            selectedProgressExerciseProvider
-                                                .notifier,
-                                          )
-                                          .state =
-                                      id,
+                              onTap: () => ref
+                                  .read(
+                                    selectedProgressExerciseProvider.notifier,
+                                  )
+                                  .state = id,
                               child: AnimatedContainer(
                                 duration: const Duration(milliseconds: 200),
                                 padding: const EdgeInsets.symmetric(
@@ -322,7 +343,7 @@ class _StrengthProgressChart extends ConsumerWidget {
                           showTitles: true,
                           interval: data.maxWeightHistory.length > 6
                               ? (data.maxWeightHistory.length / 4)
-                                    .ceilToDouble()
+                                  .ceilToDouble()
                               : 1,
                           getTitlesWidget: (v, _) {
                             final i = v.toInt();
@@ -364,11 +385,11 @@ class _StrengthProgressChart extends ConsumerWidget {
                           show: true,
                           getDotPainter: (_, __, ___, ____) =>
                               FlDotCirclePainter(
-                                radius: 3,
-                                color: AppColors.chartLine1,
-                                strokeWidth: 1.5,
-                                strokeColor: AppColors.backgroundDark,
-                              ),
+                            radius: 3,
+                            color: AppColors.chartLine1,
+                            strokeWidth: 1.5,
+                            strokeColor: AppColors.backgroundDark,
+                          ),
                         ),
                         belowBarData: BarAreaData(
                           show: true,
@@ -384,6 +405,239 @@ class _StrengthProgressChart extends ConsumerWidget {
             ],
           );
         },
+      ),
+    );
+  }
+}
+
+class _TrainingFrequencyChart extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final data = ref.watch(trainingFrequencyProvider);
+    if (data.isEmpty) return const SizedBox();
+
+    final maxVal =
+        data.map((d) => d.count).fold(0, (a, b) => a > b ? a : b).toDouble();
+    final barMaxY = maxVal == 0
+        ? 7.0
+        : maxVal < 7
+            ? 7.0
+            : maxVal * 1.2;
+
+    return Container(
+      height: 180,
+      padding: const EdgeInsets.fromLTRB(8, 16, 16, 0),
+      decoration: BoxDecoration(
+        color: AppColors.cardDark,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.borderDark),
+      ),
+      child: BarChart(
+        BarChartData(
+          maxY: barMaxY,
+          barGroups: data.asMap().entries.map((e) {
+            return BarChartGroupData(
+              x: e.key,
+              barRods: [
+                BarChartRodData(
+                  toY: e.value.count.toDouble(),
+                  color: e.value.count > 0
+                      ? AppColors.primary
+                      : AppColors.borderDark,
+                  width: 18,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+              ],
+            );
+          }).toList(),
+          gridData: FlGridData(
+            show: true,
+            drawVerticalLine: false,
+            getDrawingHorizontalLine: (_) =>
+                const FlLine(color: AppColors.chartGrid, strokeWidth: 1),
+          ),
+          borderData: FlBorderData(show: false),
+          titlesData: FlTitlesData(
+            leftTitles:
+                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles:
+                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles:
+                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                getTitlesWidget: (value, _) {
+                  final index = value.toInt();
+                  if (index >= data.length) return const SizedBox();
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 6),
+                    child: Text(
+                      data[index].label,
+                      style: const TextStyle(
+                          fontSize: 10, color: AppColors.textHint),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+          barTouchData: BarTouchData(
+            touchTooltipData: BarTouchTooltipData(
+              getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                return BarTooltipItem(
+                  '${rod.toY.toInt()} days',
+                  const TextStyle(
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 12),
+                );
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _BodyWeightChart extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final progress = ref.watch(bodyWeightProgressProvider);
+
+    if (progress.isEmpty) {
+      return const EmptyStateWidget(
+        icon: Icons.monitor_weight,
+        title: 'No Weight Data',
+        subtitle: 'Log your weight in the profile to see your progress here.',
+      );
+    }
+
+    if (progress.length == 1) {
+      return Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: AppColors.cardDark,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.borderDark),
+        ),
+        alignment: Alignment.center,
+        child: Column(
+          children: [
+            const Icon(Icons.monitor_weight,
+                color: AppColors.primary, size: 32),
+            const SizedBox(height: 12),
+            const Text(
+              'Current Weight',
+              style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              '${progress.first.$2.toStringAsFixed(1)} kg',
+              style: const TextStyle(
+                  color: AppColors.textPrimary,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Log more data points to see the chart',
+              style: TextStyle(color: AppColors.textHint, fontSize: 12),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final spots = progress.asMap().entries.map((e) {
+      return FlSpot(e.key.toDouble(), e.value.$2);
+    }).toList();
+
+    final minY = progress.map((h) => h.$2).reduce((a, b) => a < b ? a : b);
+    final maxY = progress.map((h) => h.$2).reduce((a, b) => a > b ? a : b);
+    final pad = (maxY - minY) * 0.15 + 1;
+
+    return Container(
+      height: 180,
+      padding: const EdgeInsets.fromLTRB(0, 12, 16, 0),
+      decoration: BoxDecoration(
+        color: AppColors.cardDark,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.borderDark),
+      ),
+      child: LineChart(
+        LineChartData(
+          gridData: FlGridData(
+            show: true,
+            drawVerticalLine: false,
+            getDrawingHorizontalLine: (_) =>
+                const FlLine(color: AppColors.chartGrid, strokeWidth: 1),
+          ),
+          titlesData: FlTitlesData(
+            leftTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                reservedSize: 44,
+                getTitlesWidget: (v, _) => Text(
+                  '${v.toInt()}kg',
+                  style:
+                      const TextStyle(fontSize: 9, color: AppColors.textHint),
+                ),
+              ),
+            ),
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                interval: progress.length > 6
+                    ? (progress.length / 4).ceilToDouble()
+                    : 1,
+                getTitlesWidget: (v, _) {
+                  final i = v.toInt();
+                  if (i >= progress.length || i < 0) return const SizedBox();
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 6),
+                    child: Text(
+                      AppDateUtils.formatShortDate(progress[i].$1),
+                      style: const TextStyle(
+                          fontSize: 9, color: AppColors.textHint),
+                    ),
+                  );
+                },
+              ),
+            ),
+            topTitles:
+                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles:
+                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          ),
+          borderData: FlBorderData(show: false),
+          lineBarsData: [
+            LineChartBarData(
+              spots: spots,
+              isCurved: true,
+              curveSmoothness: 0.3,
+              color: AppColors.primary,
+              barWidth: 2.5,
+              isStrokeCapRound: true,
+              dotData: FlDotData(
+                show: true,
+                getDotPainter: (_, __, ___, ____) => FlDotCirclePainter(
+                  radius: 3,
+                  color: AppColors.primary,
+                  strokeWidth: 1.5,
+                  strokeColor: AppColors.backgroundDark,
+                ),
+              ),
+              belowBarData: BarAreaData(
+                show: true,
+                color: AppColors.primary.withOpacity(0.08),
+              ),
+            ),
+          ],
+          minY: minY - pad,
+          maxY: maxY + pad,
+        ),
       ),
     );
   }

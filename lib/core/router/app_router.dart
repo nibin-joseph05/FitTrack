@@ -10,6 +10,7 @@ import '../../features/progress/presentation/screens/progress_screen.dart';
 import '../../features/body_metrics/presentation/screens/body_metrics_screen.dart';
 import '../../features/body_metrics/presentation/screens/add_body_metric_screen.dart';
 import '../../features/settings/presentation/screens/settings_screen.dart';
+import '../../features/profile/presentation/screens/profile_screen.dart';
 
 class AppRoutes {
   static const String splash = '/';
@@ -23,6 +24,7 @@ class AppRoutes {
   static const String bodyMetrics = '/body-metrics';
   static const String addBodyMetric = '/add-body-metric';
   static const String settings = '/settings';
+  static const String profile = '/profile';
 }
 
 class AppRouter {
@@ -51,6 +53,8 @@ class AppRouter {
         return _slideRoute(const AddBodyMetricScreen(), settings);
       case AppRoutes.settings:
         return _slideRoute(const SettingsScreen(), settings);
+      case AppRoutes.profile:
+        return _slideRoute(const ProfileScreen(), settings);
       default:
         return _fadeRoute(const SplashScreen(), settings);
     }

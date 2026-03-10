@@ -16,9 +16,7 @@ class WorkoutSplitManagerScreen extends ConsumerWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
-            onPressed: () {
-              // Navigate to create split screen
-            },
+            onPressed: () {},
           ),
         ],
       ),
