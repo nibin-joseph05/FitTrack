@@ -7,7 +7,14 @@ class TimerNotifier extends AsyncNotifier<List<TimerEntity>> {
   @override
   Future<List<TimerEntity>> build() async {
     final repo = ref.read(timerRepositoryProvider);
-    return repo.getAllTimers();
+    var timers = await repo.getAllTimers();
+    if (timers.isEmpty) {
+      await savePreset('Rest Timer', 60);
+      await savePreset('Plank Timer', 120);
+      await savePreset('Wall Sit Timer', 90);
+      timers = await repo.getAllTimers();
+    }
+    return timers;
   }
 
   Future<void> savePreset(String name, int seconds) async {

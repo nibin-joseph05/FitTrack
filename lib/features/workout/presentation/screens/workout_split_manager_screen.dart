@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/workout_split_provider.dart';
+import '../../../../core/router/app_router.dart';
+import '../../domain/entities/workout_split_entity.dart';
 import '../../../../shared/widgets/split_card.dart';
 
 class WorkoutSplitManagerScreen extends ConsumerWidget {
@@ -16,7 +18,9 @@ class WorkoutSplitManagerScreen extends ConsumerWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.pushNamed(context, AppRoutes.createSplit);
+            },
           ),
         ],
       ),
@@ -31,8 +35,13 @@ class WorkoutSplitManagerScreen extends ConsumerWidget {
               final split = splits[index];
               return SplitCard(
                 split: split,
-                onTap: () {},
-                onEdit: () {},
+                onTap: () {
+                  _startWorkoutFromSplit(context, ref, split);
+                },
+                onEdit: () {
+                  Navigator.pushNamed(context, AppRoutes.createSplit,
+                      arguments: split);
+                },
                 onDelete: () {
                   ref.read(workoutSplitProvider.notifier).deleteSplit(split.id);
                 },
@@ -44,5 +53,15 @@ class WorkoutSplitManagerScreen extends ConsumerWidget {
         error: (err, stack) => Center(child: Text('Error: $err')),
       ),
     );
+  }
+
+  void _startWorkoutFromSplit(
+      BuildContext context, WidgetRef ref, WorkoutSplitEntity split) {
+    if (split.exerciseIds.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Add exercises to this split first!')));
+      return;
+    }
+    Navigator.pushNamed(context, AppRoutes.workoutLog, arguments: split);
   }
 }

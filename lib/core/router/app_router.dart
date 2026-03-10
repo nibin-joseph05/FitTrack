@@ -5,12 +5,16 @@ import '../../features/workout/presentation/screens/workout_log_screen.dart';
 import '../../features/workout/presentation/screens/workout_history_screen.dart';
 import '../../features/workout/presentation/screens/workout_detail_screen.dart';
 import '../../features/exercise/presentation/screens/exercise_list_screen.dart';
-import '../../features/exercise/presentation/screens/create_exercise_screen.dart';
+import '../../features/exercise/presentation/screens/create_custom_exercise_screen.dart';
+import '../../features/exercise/presentation/screens/exercise_stats_screen.dart';
+import '../../features/workout/presentation/screens/workout_split_manager_screen.dart';
+import '../../features/workout/presentation/screens/create_workout_split_screen.dart';
 import '../../features/progress/presentation/screens/progress_screen.dart';
 import '../../features/body_metrics/presentation/screens/body_metrics_screen.dart';
 import '../../features/body_metrics/presentation/screens/add_body_metric_screen.dart';
 import '../../features/settings/presentation/screens/settings_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
+import '../../features/workout/domain/entities/workout_split_entity.dart';
 
 class AppRoutes {
   static const String splash = '/';
@@ -25,6 +29,9 @@ class AppRoutes {
   static const String addBodyMetric = '/add-body-metric';
   static const String settings = '/settings';
   static const String profile = '/profile';
+  static const String exerciseStats = '/exercise-stats';
+  static const String splitManager = '/split-manager';
+  static const String createSplit = '/create-split';
 }
 
 class AppRouter {
@@ -35,7 +42,8 @@ class AppRouter {
       case AppRoutes.home:
         return _fadeRoute(const HomeScreen(), settings);
       case AppRoutes.workoutLog:
-        return _slideRoute(const WorkoutLogScreen(), settings);
+        final split = settings.arguments as WorkoutSplitEntity?;
+        return _slideRoute(WorkoutLogScreen(initialSplit: split), settings);
       case AppRoutes.workoutHistory:
         return _slideRoute(const WorkoutHistoryScreen(), settings);
       case AppRoutes.workoutDetail:
@@ -44,7 +52,18 @@ class AppRouter {
       case AppRoutes.exerciseList:
         return _slideRoute(const ExerciseListScreen(), settings);
       case AppRoutes.createExercise:
-        return _slideRoute(const CreateExerciseScreen(), settings);
+        final args = settings.arguments;
+        return _slideRoute(
+            CreateCustomExerciseScreen(existingExercise: args), settings);
+      case AppRoutes.exerciseStats:
+        final id = settings.arguments as String;
+        return _slideRoute(ExerciseStatsScreen(exerciseId: id), settings);
+      case AppRoutes.splitManager:
+        return _slideRoute(const WorkoutSplitManagerScreen(), settings);
+      case AppRoutes.createSplit:
+        final existing = settings.arguments;
+        return _slideRoute(
+            CreateWorkoutSplitScreen(existingSplit: existing), settings);
       case AppRoutes.progress:
         return _fadeRoute(const ProgressScreen(), settings);
       case AppRoutes.bodyMetrics:

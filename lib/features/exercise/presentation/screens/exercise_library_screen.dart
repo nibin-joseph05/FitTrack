@@ -64,7 +64,30 @@ class ExerciseLibraryScreen extends ConsumerWidget {
                     final exercise = exercises[index];
                     return ExerciseCard(
                       exercise: exercise,
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.pushNamed(context, AppRoutes.exerciseStats,
+                            arguments: exercise.id);
+                      },
+                      trailing: PopupMenuButton<int>(
+                        icon: const Icon(Icons.more_vert),
+                        onSelected: (val) {
+                          if (val == 0) {
+                            Navigator.pushNamed(
+                                context, AppRoutes.createExercise,
+                                arguments: exercise);
+                          } else if (val == 1) {
+                            _showDeleteDialog(context, ref, exercise);
+                          }
+                        },
+                        itemBuilder: (ctx) => [
+                          const PopupMenuItem(value: 0, child: Text('Edit')),
+                          if (exercise.isCustom)
+                            const PopupMenuItem(
+                                value: 1,
+                                child: Text('Delete',
+                                    style: TextStyle(color: Colors.red))),
+                        ],
+                      ),
                     );
                   },
                 );
@@ -151,6 +174,27 @@ class ExerciseLibraryScreen extends ConsumerWidget {
           }).toList(),
           onChanged: onChanged,
         ),
+      ),
+    );
+  }
+
+  void _showDeleteDialog(BuildContext context, WidgetRef ref, exercise) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete Exercise'),
+        content: Text('Are you sure you want to delete ${exercise.name}?'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () {
+              ref.read(exerciseProvider.notifier).deleteExercise(exercise.id);
+              Navigator.pop(ctx);
+            },
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+          ),
+        ],
       ),
     );
   }

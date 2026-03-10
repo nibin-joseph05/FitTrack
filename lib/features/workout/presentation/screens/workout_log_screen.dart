@@ -8,10 +8,14 @@ import '../providers/workout_provider.dart';
 import '../../domain/entities/workout_entities.dart';
 import '../../../exercise/presentation/providers/exercise_provider.dart';
 import '../../../exercise/domain/entities/exercise_entity.dart';
+import '../../../../shared/widgets/exercise_picker_sheet.dart';
 import '../widgets/set_input_row.dart';
 
+import '../../domain/entities/workout_split_entity.dart';
+
 class WorkoutLogScreen extends ConsumerStatefulWidget {
-  const WorkoutLogScreen({super.key});
+  final WorkoutSplitEntity? initialSplit;
+  const WorkoutLogScreen({super.key, this.initialSplit});
 
   @override
   ConsumerState<WorkoutLogScreen> createState() => _WorkoutLogScreenState();
@@ -26,6 +30,8 @@ class _WorkoutLogScreenState extends ConsumerState<WorkoutLogScreen> {
     final active = ref.read(activeWorkoutProvider);
     if (active != null) {
       _titleController.text = active.title;
+    } else if (widget.initialSplit != null) {
+      _titleController.text = widget.initialSplit!.name;
     }
   }
 
@@ -35,11 +41,41 @@ class _WorkoutLogScreenState extends ConsumerState<WorkoutLogScreen> {
     super.dispose();
   }
 
-  void _startWorkout() {
+  void _startWorkout() async {
     final title = _titleController.text.trim().isEmpty
-        ? 'Morning Workout'
+        ? (widget.initialSplit != null
+            ? widget.initialSplit!.name
+            : 'Morning Workout')
         : _titleController.text.trim();
     ref.read(activeWorkoutProvider.notifier).startWorkout(title);
+
+    if (widget.initialSplit != null) {
+      final split = widget.initialSplit!;
+      final exercisesAsync = ref.read(exerciseProvider);
+
+      exercisesAsync.whenData((allExercises) {
+        for (final exerciseId in split.exerciseIds) {
+          try {
+            final def = allExercises.firstWhere((e) => e.id == exerciseId);
+            final we = WorkoutExerciseEntity(
+              exerciseId: def.id,
+              exerciseName: def.name,
+              muscleGroup: def.muscleGroup,
+              sets: [
+                const WorkoutSetEntity(
+                  setNumber: 1,
+                  targetReps: 10,
+                  completedReps: 0,
+                  weight: 0,
+                  isCompleted: false,
+                ),
+              ],
+            );
+            ref.read(activeWorkoutProvider.notifier).addExercise(we);
+          } catch (_) {}
+        }
+      });
+    }
   }
 
   Future<void> _addExercise() async {
@@ -52,7 +88,7 @@ class _WorkoutLogScreenState extends ConsumerState<WorkoutLogScreen> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       isScrollControlled: true,
-      builder: (ctx) => _ExercisePickerSheet(exercises: exercises),
+      builder: (ctx) => ExercisePickerSheet(exercises: exercises),
     );
     if (selected != null) {
       final exercise = WorkoutExerciseEntity(
@@ -478,91 +514,6 @@ class _ColLabel extends StatelessWidget {
         fontWeight: FontWeight.w700,
         letterSpacing: 0.8,
       ),
-    );
-  }
-}
-
-class _ExercisePickerSheet extends StatefulWidget {
-  final List<ExerciseEntity> exercises;
-  const _ExercisePickerSheet({required this.exercises});
-
-  @override
-  State<_ExercisePickerSheet> createState() => _ExercisePickerSheetState();
-}
-
-class _ExercisePickerSheetState extends State<_ExercisePickerSheet> {
-  String _query = '';
-
-  List<ExerciseEntity> get _filtered => widget.exercises
-      .where((e) => e.name.toLowerCase().contains(_query.toLowerCase()))
-      .toList();
-
-  @override
-  Widget build(BuildContext context) {
-    return DraggableScrollableSheet(
-      expand: false,
-      initialChildSize: 0.7,
-      maxChildSize: 0.95,
-      builder: (_, controller) {
-        return Column(
-          children: [
-            const SizedBox(height: 8),
-            Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: AppColors.borderDark,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: TextField(
-                decoration: const InputDecoration(
-                  hintText: 'Search exercises...',
-                  prefixIcon: Icon(Icons.search),
-                ),
-                onChanged: (v) => setState(() => _query = v),
-              ),
-            ),
-            const SizedBox(height: 12),
-            Expanded(
-              child: ListView.separated(
-                controller: controller,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                itemCount: _filtered.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 8),
-                itemBuilder: (_, i) {
-                  final e = _filtered[i];
-                  return ListTile(
-                    tileColor: AppColors.cardDark,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    title: Text(
-                      e.name,
-                      style: const TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                    subtitle: Text(
-                      e.muscleGroup,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: AppColors.textHint,
-                      ),
-                    ),
-                    trailing: const Icon(
-                      Icons.add_circle_outline,
-                      color: AppColors.primary,
-                    ),
-                    onTap: () => Navigator.pop(context, e),
-                  );
-                },
-              ),
-            ),
-          ],
-        );
-      },
     );
   }
 }

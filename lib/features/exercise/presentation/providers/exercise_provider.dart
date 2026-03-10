@@ -63,6 +63,39 @@ class ExerciseNotifier extends AsyncNotifier<List<ExerciseEntity>> {
     ref.invalidateSelf();
   }
 
+  Future<void> updateExercise(
+    ExerciseEntity existing, {
+    required String name,
+    required String muscleGroup,
+    required String category,
+    String? description,
+    String? secondaryMuscleGroup,
+    String? exerciseType,
+    String? equipmentType,
+    String? difficulty,
+    String? instructions,
+    String? notes,
+    String? imagePath,
+    String? videoUrl,
+  }) async {
+    final updated = existing.copyWith(
+      name: name,
+      muscleGroup: muscleGroup,
+      category: category,
+      description: description,
+      secondaryMuscleGroup: secondaryMuscleGroup,
+      exerciseType: exerciseType,
+      equipmentType: equipmentType,
+      difficulty: difficulty,
+      instructions: instructions,
+      notes: notes,
+      imagePath: imagePath,
+      videoUrl: videoUrl,
+    );
+    await ref.read(createExerciseUseCaseProvider).call(updated);
+    ref.invalidateSelf();
+  }
+
   Future<void> deleteExercise(String id) async {
     await ref.read(deleteExerciseUseCaseProvider).call(id);
     ref.invalidateSelf();

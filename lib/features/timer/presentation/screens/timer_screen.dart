@@ -36,7 +36,10 @@ class TimerScreen extends ConsumerWidget {
                 const Text('Saved Timers',
                     style:
                         TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                TextButton(onPressed: () {}, child: const Text('+ Add New')),
+                TextButton(
+                  onPressed: () => _showAddTimerDialog(context, ref),
+                  child: const Text('+ Add New'),
+                ),
               ],
             ),
           ),
@@ -70,6 +73,47 @@ class TimerScreen extends ConsumerWidget {
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (err, stack) => Center(child: Text('Error: $err')),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showAddTimerDialog(BuildContext context, WidgetRef ref) {
+    final nameCtrl = TextEditingController();
+    final secCtrl = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Add Custom Timer'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+                controller: nameCtrl,
+                decoration: const InputDecoration(
+                    labelText: 'Timer Name (e.g., Custom)')),
+            const SizedBox(height: 8),
+            TextField(
+                controller: secCtrl,
+                keyboardType: TextInputType.number,
+                decoration:
+                    const InputDecoration(labelText: 'Duration in Seconds')),
+          ],
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () {
+              final name = nameCtrl.text.trim();
+              final sec = int.tryParse(secCtrl.text.trim()) ?? 60;
+              if (name.isNotEmpty) {
+                ref.read(savedTimersProvider.notifier).savePreset(name, sec);
+                Navigator.pop(ctx);
+              }
+            },
+            child: const Text('Save'),
           ),
         ],
       ),
