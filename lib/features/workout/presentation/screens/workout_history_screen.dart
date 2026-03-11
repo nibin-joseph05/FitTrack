@@ -93,7 +93,7 @@ class _WorkoutHistoryScreenState extends ConsumerState<WorkoutHistoryScreen> {
                   alignment: Alignment.centerRight,
                   padding: const EdgeInsets.only(right: 20),
                   decoration: BoxDecoration(
-                    color: Colors.red.withAlpha(51), // 0.2 opacity
+                    color: Colors.red.withAlpha(51), 
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: const Icon(

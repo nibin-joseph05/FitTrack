@@ -5,7 +5,16 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../body_metrics/presentation/providers/body_metrics_provider.dart';
 import '../../../../shared/widgets/app_header.dart';
+import 'package:hive/hive.dart';
+import '../../../../core/constants/hive_boxes.dart';
 import '../../../../shared/widgets/loading_widget.dart';
+
+import '../../../workout/data/models/workout_log_model.dart';
+import '../../../exercise/data/models/exercise_model.dart';
+import '../../../body_metrics/data/models/body_metric_model.dart';
+import '../../../workout/data/models/workout_split_model.dart';
+import '../../../attendance/data/models/attendance_model.dart';
+import '../../data/models/profile_model.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -84,6 +93,57 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     setState(() {
       _isEditing = false;
     });
+  }
+
+  Future<void> _confirmReset(BuildContext context) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: AppColors.cardDark,
+        title: const Text('Reset Everything?',
+            style: TextStyle(color: AppColors.error, fontWeight: FontWeight.bold)),
+        content: const Text(
+            'This will permanently delete all your workouts, custom exercises, attendance, profile, and progress data. This cannot be undone.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel', style: TextStyle(color: AppColors.textSecondary)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Delete All Data', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      try {
+        await Hive.box<ProfileModel>(HiveBoxes.profile).clear();
+        await Hive.box<ExerciseModel>(HiveBoxes.exercises).clear();
+        await Hive.box<WorkoutLogModel>(HiveBoxes.workoutLogs).clear();
+        await Hive.box<BodyMetricModel>(HiveBoxes.bodyMetrics).clear();
+        await Hive.box<AttendanceModel>(HiveBoxes.attendance).clear();
+        await Hive.box<WorkoutSplitModel>(HiveBoxes.workoutSplits).clear();
+        
+        await Future.delayed(const Duration(milliseconds: 100));
+
+        if (mounted) {
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            AppRoutes.splash,
+            (route) => false,
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error clearing data: $e')),
+          );
+        }
+      }
+    }
   }
 
   @override
@@ -191,6 +251,17 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                             context, AppRoutes.privacyPolicy),
                       ),
                       const SizedBox(height: 32),
+                      const _SectionHeader(title: 'DANGER ZONE'),
+                      const SizedBox(height: 8),
+                      _NavTile(
+                        icon: Icons.delete_forever,
+                        title: 'Erase All Data',
+                        subtitle: 'Reset app and delete everything',
+                        iconColor: AppColors.error,
+                        textColor: AppColors.error,
+                        onTap: () => _confirmReset(context),
+                      ),
+                      const SizedBox(height: 32),
                       const Center(
                         child: Text(
                           'Designed & Developed by Nibin Joseph\nnibin.joseph.career@gmail.com',
@@ -279,12 +350,16 @@ class _NavTile extends StatelessWidget {
   final String title;
   final String subtitle;
   final VoidCallback onTap;
+  final Color? iconColor;
+  final Color? textColor;
 
   const _NavTile({
     required this.icon,
     required this.title,
     required this.subtitle,
     required this.onTap,
+    this.iconColor,
+    this.textColor,
   });
 
   @override
@@ -301,13 +376,13 @@ class _NavTile extends StatelessWidget {
           width: 38,
           height: 38,
           decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.12),
+              color: (iconColor ?? AppColors.primary).withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(10)),
-          child: Icon(icon, color: AppColors.primary, size: 20),
+          child: Icon(icon, color: (iconColor ?? AppColors.primary), size: 20),
         ),
         title: Text(title,
-            style: const TextStyle(
-                color: AppColors.textPrimary,
+            style: TextStyle(
+                color: textColor ?? AppColors.textPrimary,
                 fontWeight: FontWeight.w600,
                 fontSize: 14)),
         subtitle: Text(subtitle,
