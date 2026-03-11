@@ -20,12 +20,20 @@ class ProfileModel extends HiveObject {
   @HiveField(4)
   final int weeklyGoal;
 
+  @HiveField(5)
+  final double currentWeight;
+
+  @HiveField(6)
+  final bool onboardingComplete;
+
   ProfileModel({
     required this.id,
     required this.name,
     required this.height,
     required this.targetWeight,
     required this.weeklyGoal,
+    this.currentWeight = 0.0,
+    this.onboardingComplete = false,
   });
 
   factory ProfileModel.fromEntity(ProfileEntity entity) {
@@ -35,6 +43,8 @@ class ProfileModel extends HiveObject {
       height: entity.height,
       targetWeight: entity.targetWeight,
       weeklyGoal: entity.weeklyGoal,
+      currentWeight: entity.currentWeight,
+      onboardingComplete: entity.onboardingComplete,
     );
   }
 
@@ -45,6 +55,8 @@ class ProfileModel extends HiveObject {
       height: height,
       targetWeight: targetWeight,
       weeklyGoal: weeklyGoal,
+      currentWeight: currentWeight,
+      onboardingComplete: onboardingComplete,
     );
   }
 }

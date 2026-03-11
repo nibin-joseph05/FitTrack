@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/profile_provider.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/router/app_router.dart';
 import '../../../body_metrics/presentation/providers/body_metrics_provider.dart';
 import '../../../../shared/widgets/app_header.dart';
 import '../../../../shared/widgets/loading_widget.dart';
@@ -47,7 +48,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       _nameController.text = profile.name;
       _heightController.text = profile.height.toString();
       _weightController.text =
-          latestWeight != null ? latestWeight.toString() : '0.0';
+          profile.currentWeight > 0 ? profile.currentWeight.toString() : (latestWeight?.toString() ?? '0.0');
       _targetWeightController.text = profile.targetWeight.toString();
       _weeklyGoalController.text = profile.weeklyGoal.toString();
       _initialized = true;
@@ -66,6 +67,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     final updatedProfile = profile.copyWith(
       name: name.isEmpty ? profile.name : name,
       height: height,
+      currentWeight: weight ?? profile.currentWeight,
       targetWeight: targetWeight,
       weeklyGoal: weeklyGoal,
     );
@@ -131,9 +133,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         if (_isEditing) {
                           _saveProfile(profile);
                         } else {
-                          setState(() {
-                            _isEditing = true;
-                          });
+                          setState(() => _isEditing = true);
                         }
                       },
                     ),
@@ -166,6 +166,40 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       const SizedBox(height: 16),
                       _buildProfileField('Weekly Gym Goal (Days)',
                           _weeklyGoalController, TextInputType.number),
+                      const SizedBox(height: 32),
+                      _SectionHeader(title: 'APP'),
+                      const SizedBox(height: 8),
+                      _NavTile(
+                        icon: Icons.local_fire_department,
+                        title: 'Daily Motivation',
+                        subtitle: '300 aggressive gym quotes',
+                        onTap: () => Navigator.pushNamed(
+                            context, AppRoutes.dailyMotivation),
+                      ),
+                      _NavTile(
+                        icon: Icons.info_outline,
+                        title: 'About FitTrack',
+                        subtitle: 'Developer, version, features',
+                        onTap: () =>
+                            Navigator.pushNamed(context, AppRoutes.aboutApp),
+                      ),
+                      _NavTile(
+                        icon: Icons.lock_outline,
+                        title: 'Privacy Policy',
+                        subtitle: 'All data stays on your device',
+                        onTap: () => Navigator.pushNamed(
+                            context, AppRoutes.privacyPolicy),
+                      ),
+                      const SizedBox(height: 32),
+                      const Center(
+                        child: Text(
+                          'Designed & Developed by Nibin Joseph\nnibin.joseph.career@gmail.com',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              color: AppColors.textHint, fontSize: 11),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
                     ],
                   ),
                 ),
@@ -219,6 +253,72 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _SectionHeader extends StatelessWidget {
+  final String title;
+  const _SectionHeader({required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      title,
+      style: const TextStyle(
+          color: AppColors.textHint,
+          fontSize: 11,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 1.5),
+    );
+  }
+}
+
+class _NavTile extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  const _NavTile({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      decoration: BoxDecoration(
+        color: AppColors.cardDark,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.borderDark),
+      ),
+      child: ListTile(
+        leading: Container(
+          width: 38,
+          height: 38,
+          decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(10)),
+          child: Icon(icon, color: AppColors.primary, size: 20),
+        ),
+        title: Text(title,
+            style: const TextStyle(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w600,
+                fontSize: 14)),
+        subtitle: Text(subtitle,
+            style:
+                const TextStyle(color: AppColors.textHint, fontSize: 12)),
+        trailing: const Icon(Icons.chevron_right,
+            color: AppColors.textHint, size: 20),
+        onTap: onTap,
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+      ),
     );
   }
 }

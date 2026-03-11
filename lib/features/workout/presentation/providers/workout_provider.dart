@@ -52,12 +52,14 @@ class ActiveWorkoutState {
   final List<WorkoutExerciseEntity> exercises;
   final DateTime startTime;
   final bool isActive;
+  final String? imagePath;
 
   const ActiveWorkoutState({
     required this.title,
     required this.exercises,
     required this.startTime,
     required this.isActive,
+    this.imagePath,
   });
 
   ActiveWorkoutState copyWith({
@@ -65,12 +67,14 @@ class ActiveWorkoutState {
     List<WorkoutExerciseEntity>? exercises,
     DateTime? startTime,
     bool? isActive,
+    String? imagePath,
   }) {
     return ActiveWorkoutState(
       title: title ?? this.title,
       exercises: exercises ?? this.exercises,
       startTime: startTime ?? this.startTime,
       isActive: isActive ?? this.isActive,
+      imagePath: imagePath ?? this.imagePath,
     );
   }
 
@@ -115,7 +119,12 @@ class ActiveWorkoutNotifier extends Notifier<ActiveWorkoutState?> {
     state = state!.copyWith(title: title);
   }
 
-  Future<void> finishWorkout() async {
+  void setWorkoutImage(String path) {
+    if (state == null) return;
+    state = state!.copyWith(imagePath: path);
+  }
+
+  Future<void> finishWorkout({String? imagePath}) async {
     if (state == null || state!.exercises.isEmpty) return;
     const uuid = Uuid();
     final duration = DateTime.now().difference(state!.startTime);
@@ -125,6 +134,7 @@ class ActiveWorkoutNotifier extends Notifier<ActiveWorkoutState?> {
       date: state!.startTime,
       exercises: state!.exercises,
       durationSeconds: duration.inSeconds,
+      imagePath: imagePath ?? state!.imagePath,
     );
     await ref.read(saveWorkoutUseCaseProvider).call(workout);
     ref.invalidate(workoutHistoryProvider);

@@ -22,13 +22,15 @@ class ProfileModelAdapter extends TypeAdapter<ProfileModel> {
       height: fields[2] as double,
       targetWeight: fields[3] as double,
       weeklyGoal: fields[4] as int,
+      currentWeight: fields[5] == null ? 0.0 : fields[5] as double,
+      onboardingComplete: fields[6] == null ? false : fields[6] as bool,
     );
   }
 
   @override
   void write(BinaryWriter writer, ProfileModel obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(7)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -38,7 +40,11 @@ class ProfileModelAdapter extends TypeAdapter<ProfileModel> {
       ..writeByte(3)
       ..write(obj.targetWeight)
       ..writeByte(4)
-      ..write(obj.weeklyGoal);
+      ..write(obj.weeklyGoal)
+      ..writeByte(5)
+      ..write(obj.currentWeight)
+      ..writeByte(6)
+      ..write(obj.onboardingComplete);
   }
 
   @override

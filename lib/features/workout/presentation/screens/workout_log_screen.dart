@@ -1,5 +1,8 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/format_utils.dart';
 import '../../../../shared/widgets/primary_button.dart';
@@ -109,6 +112,17 @@ class _WorkoutLogScreenState extends ConsumerState<WorkoutLogScreen> {
     }
   }
 
+  Future<String?> _pickWorkoutImage() async {
+    final picker = ImagePicker();
+    final picked = await picker.pickImage(
+        source: ImageSource.gallery, imageQuality: 75);
+    if (picked == null) return null;
+    final dir = await getApplicationDocumentsDirectory();
+    final dest = '${dir.path}/workout_img_${DateTime.now().millisecondsSinceEpoch}.jpg';
+    await File(picked.path).copy(dest);
+    return dest;
+  }
+
   Future<void> _finishWorkout() async {
     final active = ref.read(activeWorkoutProvider);
     if (active == null || active.exercises.isEmpty) {
@@ -117,18 +131,40 @@ class _WorkoutLogScreenState extends ConsumerState<WorkoutLogScreen> {
       );
       return;
     }
+
+    String? imagePath;
+
     final confirm = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: AppColors.cardDark,
         title: const Text('Finish Workout?'),
-        content: Text(
-          '${active.exercises.length} exercises • ${active.totalSets} sets • ${FormatUtils.formatVolume(active.totalVolume)} volume',
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '${active.exercises.length} exercises • ${active.totalSets} sets • ${FormatUtils.formatVolume(active.totalVolume)} volume',
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Attach a gym photo? (optional)',
+              style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+            ),
+          ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
             child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              imagePath = await _pickWorkoutImage();
+              if (mounted) Navigator.pop(context, true);
+            },
+            child: const Text('Add Photo',
+                style: TextStyle(color: AppColors.accent)),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
@@ -138,7 +174,7 @@ class _WorkoutLogScreenState extends ConsumerState<WorkoutLogScreen> {
       ),
     );
     if (confirm == true) {
-      await ref.read(activeWorkoutProvider.notifier).finishWorkout();
+      await ref.read(activeWorkoutProvider.notifier).finishWorkout(imagePath: imagePath);
       if (mounted) Navigator.pop(context);
     }
   }

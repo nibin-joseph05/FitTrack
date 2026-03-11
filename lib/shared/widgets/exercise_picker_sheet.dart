@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../features/exercise/domain/entities/exercise_entity.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/router/app_router.dart';
 
 class ExercisePickerSheet extends StatefulWidget {
   final List<ExerciseEntity> exercises;
@@ -51,10 +52,30 @@ class _ExercisePickerSheetState extends State<ExercisePickerSheet> {
               child: ListView.separated(
                 controller: controller,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                itemCount: _filtered.length,
+                itemCount: _filtered.length + 1,
                 separatorBuilder: (_, __) => const SizedBox(height: 8),
                 itemBuilder: (_, i) {
-                  final e = _filtered[i];
+                  if (i == 0) {
+                    return ListTile(
+                      tileColor: AppColors.primary.withValues(alpha: 0.15),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        side: BorderSide(color: AppColors.primary.withValues(alpha: 0.5)),
+                      ),
+                      leading: const Icon(Icons.add_circle, color: AppColors.primary),
+                      title: const Text(
+                        'Create Custom Exercise',
+                        style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary),
+                      ),
+                      onTap: () async {
+                        final newExercise = await Navigator.pushNamed(context, AppRoutes.createExercise);
+                        if (newExercise != null && newExercise is ExerciseEntity && context.mounted) {
+                          Navigator.pop(context, newExercise);
+                        }
+                      },
+                    );
+                  }
+                  final e = _filtered[i - 1];
                   return ListTile(
                     tileColor: AppColors.cardDark,
                     shape: RoundedRectangleBorder(

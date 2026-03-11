@@ -24,6 +24,9 @@ class WorkoutLogModel extends HiveObject {
   @HiveField(5)
   final String? notes;
 
+  @HiveField(6)
+  final String? imagePath;
+
   WorkoutLogModel({
     required this.id,
     required this.title,
@@ -31,6 +34,7 @@ class WorkoutLogModel extends HiveObject {
     required this.exercises,
     required this.durationSeconds,
     this.notes,
+    this.imagePath,
   });
 
   double get totalVolume => exercises.fold(0, (sum, e) => sum + e.totalVolume);

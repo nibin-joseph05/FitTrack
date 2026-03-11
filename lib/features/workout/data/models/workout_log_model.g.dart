@@ -23,13 +23,14 @@ class WorkoutLogModelAdapter extends TypeAdapter<WorkoutLogModel> {
       exercises: (fields[3] as List).cast<WorkoutExerciseModel>(),
       durationSeconds: fields[4] as int,
       notes: fields[5] as String?,
+      imagePath: fields[6] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, WorkoutLogModel obj) {
     writer
-      ..writeByte(6)
+      ..writeByte(7)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -41,7 +42,9 @@ class WorkoutLogModelAdapter extends TypeAdapter<WorkoutLogModel> {
       ..writeByte(4)
       ..write(obj.durationSeconds)
       ..writeByte(5)
-      ..write(obj.notes);
+      ..write(obj.notes)
+      ..writeByte(6)
+      ..write(obj.imagePath);
   }
 
   @override

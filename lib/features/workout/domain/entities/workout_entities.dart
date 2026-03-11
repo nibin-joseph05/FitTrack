@@ -86,6 +86,7 @@ class WorkoutLogEntity {
   final List<WorkoutExerciseEntity> exercises;
   final int durationSeconds;
   final String? notes;
+  final String? imagePath;
 
   const WorkoutLogEntity({
     required this.id,
@@ -94,6 +95,7 @@ class WorkoutLogEntity {
     required this.exercises,
     required this.durationSeconds,
     this.notes,
+    this.imagePath,
   });
 
   double get totalVolume => exercises.fold(0, (sum, e) => sum + e.totalVolume);

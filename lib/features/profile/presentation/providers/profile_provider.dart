@@ -27,19 +27,7 @@ class ProfileNotifier extends StateNotifier<AsyncValue<ProfileEntity?>> {
   Future<void> _loadProfile() async {
     try {
       final profile = await _repository.getProfile();
-      if (profile == null) {
-        const defaultProfile = ProfileEntity(
-          id: 'user',
-          name: 'FitTrack User',
-          height: 175.0,
-          targetWeight: 75.0,
-          weeklyGoal: 4,
-        );
-        await _repository.saveProfile(defaultProfile);
-        state = const AsyncValue.data(defaultProfile);
-      } else {
-        state = AsyncValue.data(profile);
-      }
+      state = AsyncValue.data(profile);
     } catch (e, stack) {
       state = AsyncValue.error(e, stack);
     }
@@ -52,5 +40,25 @@ class ProfileNotifier extends StateNotifier<AsyncValue<ProfileEntity?>> {
     } catch (e, stack) {
       state = AsyncValue.error(e, stack);
     }
+  }
+
+  Future<void> completeOnboarding({
+    required String name,
+    required double height,
+    required double currentWeight,
+    required double targetWeight,
+    required int weeklyGoal,
+  }) async {
+    final profile = ProfileEntity(
+      id: 'user',
+      name: name,
+      height: height,
+      currentWeight: currentWeight,
+      targetWeight: targetWeight,
+      weeklyGoal: weeklyGoal,
+      onboardingComplete: true,
+    );
+    await _repository.saveProfile(profile);
+    state = AsyncValue.data(profile);
   }
 }
