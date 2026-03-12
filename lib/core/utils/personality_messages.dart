@@ -82,15 +82,17 @@ class PersonalityMessages {
     return messages[DateTime.now().second % messages.length];
   }
 
-  static String gymReadyMessage(String name) {
-    final messages = [
-      'Ready to train today, $name?',
-      'What\'s the plan today, $name? Make it count.',
-      'Another day to get better, $name. Let\'s not waste it.',
-      'The gym is open, $name. The question is — are you?',
-      'You and the iron have a meeting, $name. Don\'t be late.',
-    ];
-    return messages[DateTime.now().hour % messages.length];
+  static String timeBasedGreeting() {
+    final hour = DateTime.now().hour;
+    if (hour >= 4 && hour < 12) {
+      return 'Good morning';
+    } else if (hour >= 12 && hour < 17) {
+      return 'Good afternoon';
+    } else if (hour >= 17 && hour < 21) {
+      return 'Good evening';
+    } else {
+      return 'Late night';
+    }
   }
 
   static String progressCelebration(String name) {

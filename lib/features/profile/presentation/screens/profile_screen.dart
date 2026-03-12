@@ -17,7 +17,8 @@ import '../../../attendance/data/models/attendance_model.dart';
 import '../../data/models/profile_model.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
-  const ProfileScreen({super.key});
+  final bool isStandalone;
+  const ProfileScreen({super.key, this.isStandalone = true});
 
   @override
   ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
@@ -152,7 +153,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     final metricsAsync = ref.watch(bodyMetricsProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.backgroundDark,
+      backgroundColor: widget.isStandalone ? AppColors.backgroundDark : Colors.transparent,
       body: SafeArea(
         child: profileAsync.when(
           loading: () => const LoadingWidget(),
@@ -185,23 +186,24 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   subtitle: 'YOUR DETAILS',
                   actions: [
                     IconButton(
-                      icon: Icon(
-                        _isEditing ? Icons.check : Icons.edit,
-                        color: AppColors.primary,
+                        icon: Icon(
+                          _isEditing ? Icons.check : Icons.edit,
+                          color: AppColors.primary,
+                        ),
+                        onPressed: () {
+                          if (_isEditing) {
+                            _saveProfile(profile);
+                          } else {
+                            setState(() => _isEditing = true);
+                          }
+                        },
                       ),
-                      onPressed: () {
-                        if (_isEditing) {
-                          _saveProfile(profile);
-                        } else {
-                          setState(() => _isEditing = true);
-                        }
-                      },
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.close,
-                          color: AppColors.textSecondary),
-                      onPressed: () => Navigator.pop(context),
-                    ),
+                    if (widget.isStandalone)
+                      IconButton(
+                        icon: const Icon(Icons.close,
+                            color: AppColors.textSecondary),
+                        onPressed: () => Navigator.pop(context),
+                      ),
                   ],
                 ),
                 Expanded(
