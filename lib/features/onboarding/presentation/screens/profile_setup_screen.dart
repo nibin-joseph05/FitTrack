@@ -29,8 +29,7 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
     super.initState();
     _fadeController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 500));
-    _fadeAnim =
-        Tween<double>(begin: 0, end: 1).animate(_fadeController);
+    _fadeAnim = Tween<double>(begin: 0, end: 1).animate(_fadeController);
     _fadeController.forward();
   }
 
@@ -45,29 +44,33 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
     super.dispose();
   }
 
-  void _showBrutalSnackbar(String message) {
-    ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
-        backgroundColor: AppColors.primary,
-        duration: const Duration(seconds: 2),
-      ),
-    );
-  }
+  String? _nameErrorText;
+  String? _heightErrorText;
+  String? _weightErrorText;
+  String? _targetWeightErrorText;
+  String? _weeklyGoalErrorText;
 
   void _nextPage() {
     final name = _nameController.text.trim();
     if (name.isEmpty) {
-      _showBrutalSnackbar('I\'m sorry, are you nameless? Or just too lazy to type?');
-      return;
-    }
-    
-    if (name.length < 3) {
-      _showBrutalSnackbar('"$name"? What kind of name is that? Be serious.');
+      setState(() => _nameErrorText =
+          'I\'m sorry, are you nameless? Or just too lazy to type?');
       return;
     }
 
+    if (name.length < 3) {
+      setState(() =>
+          _nameErrorText = '"$name"? Do you have a real name or just letters?');
+      return;
+    }
+
+    if (name.length > 20) {
+      setState(() => _nameErrorText =
+          'Alright Your Highness, keep it short. We don\'t got all day.');
+      return;
+    }
+
+    setState(() => _nameErrorText = null);
     FocusScope.of(context).unfocus();
     _fadeController.reset();
     _pageController.nextPage(
@@ -84,7 +87,14 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
     final targetText = _targetWeightController.text.trim();
 
     if (heightText.isEmpty || weightText.isEmpty || targetText.isEmpty) {
-      _showBrutalSnackbar('Fill in all fields. Stop crying and type.');
+      setState(() {
+        if (heightText.isEmpty)
+          _heightErrorText = 'Fill this in. Stop crying and type.';
+        if (weightText.isEmpty)
+          _weightErrorText = 'Fill this in. Stop crying and type.';
+        if (targetText.isEmpty)
+          _targetWeightErrorText = 'Fill this in. Stop crying and type.';
+      });
       return;
     }
 
@@ -92,53 +102,75 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
     final currentWeight = double.tryParse(weightText);
     final targetWeight = double.tryParse(targetText);
 
+    bool hasError = false;
+
     if (height == null) {
-      _showBrutalSnackbar('Do you not know what numbers are? Enter a real height.');
-      return;
+      setState(() => _heightErrorText =
+          'Do you not know what numbers are? Enter a real height.');
+      hasError = true;
     } else if (height <= 0) {
-      _showBrutalSnackbar('Zero height? What are you, a 2D drawing? Be serious.');
-      return;
+      setState(() => _heightErrorText =
+          'Zero height? What are you, a 2D drawing? Be serious.');
+      hasError = true;
     } else if (height < 100) {
-      _showBrutalSnackbar('Under 100cm? Unless you are a literal toddler, type your real height.');
-      return;
+      setState(() => _heightErrorText =
+          'Under 100cm? Unless you are a literal toddler, type your real height.');
+      hasError = true;
     } else if (height > 250) {
-      _showBrutalSnackbar('Over 250cm? Are you building a team for the NBA? Stop lying.');
-      return;
+      setState(() => _heightErrorText =
+          'Over 250cm? Are you building a team for the NBA? Stop lying.');
+      hasError = true;
+    } else {
+      setState(() => _heightErrorText = null);
     }
 
     if (currentWeight == null) {
-      _showBrutalSnackbar('Weight requires numbers, genius. Enter it.');
-      return;
+      setState(() =>
+          _weightErrorText = 'Weight requires numbers, genius. Enter it.');
+      hasError = true;
     } else if (currentWeight <= 0) {
-      _showBrutalSnackbar('Anti-gravity weight? Try typing a number that exists.');
-      return;
+      setState(() => _weightErrorText =
+          'Anti-gravity weight? Try typing a number that exists.');
+      hasError = true;
     } else if (currentWeight < 30) {
-      _showBrutalSnackbar('Under 30kg? A stiff breeze will blow you away. Eat something.');
-      return;
+      setState(() => _weightErrorText =
+          'Under 30kg? A stiff breeze will blow you away. Eat something.');
+      hasError = true;
     } else if (currentWeight > 300) {
-      _showBrutalSnackbar('Over 300kg? Time to put the fork down immediately.');
-      return;
+      setState(() => _weightErrorText =
+          'Over 300kg? Time to put the fork down immediately.');
+      hasError = true;
+    } else {
+      setState(() => _weightErrorText = null);
     }
-    
+
     if (targetWeight == null) {
-      _showBrutalSnackbar('You need a target. Aimless people fail here.');
-      return;
+      setState(() => _targetWeightErrorText =
+          'You need a target. Aimless people fail here.');
+      hasError = true;
     } else if (targetWeight <= 0) {
-      _showBrutalSnackbar('A target of zero means you disappear. Pick a real goal.');
-      return;
+      setState(() => _targetWeightErrorText =
+          'A target of zero means you disappear. Pick a real goal.');
+      hasError = true;
     } else if (targetWeight < 30) {
-      _showBrutalSnackbar('Target under 30kg? Are you trying to cease existing? Try again.');
-      return;
+      setState(() => _targetWeightErrorText =
+          'Target under 30kg? Are you trying to cease existing? Try again.');
+      hasError = true;
     } else if (targetWeight > 300) {
-      _showBrutalSnackbar('Targeting over 300kg? We don\'t train professional sumo wrestlers.');
-      return;
+      setState(() => _targetWeightErrorText =
+          'Targeting over 300kg? We don\'t train professional sumo wrestlers.');
+      hasError = true;
+    } else {
+      setState(() => _targetWeightErrorText = null);
     }
+
+    if (hasError) return;
 
     await ref.read(profileProvider.notifier).completeOnboarding(
           name: name,
-          height: height,
-          currentWeight: currentWeight,
-          targetWeight: targetWeight,
+          height: height!,
+          currentWeight: currentWeight!,
+          targetWeight: targetWeight!,
           weeklyGoal: _weeklyGoal,
         );
 
@@ -154,11 +186,15 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
           ),
           title: const Text(
             'Welcome to the pain.',
-            style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w900, fontSize: 24),
+            style: TextStyle(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w900,
+                fontSize: 24),
           ),
           content: const Text(
             'Your profile is set. You are going to suffer from now on. Don\'t say we didn\'t warn you.',
-            style: TextStyle(color: AppColors.textSecondary, fontSize: 16, height: 1.5),
+            style: TextStyle(
+                color: AppColors.textSecondary, fontSize: 16, height: 1.5),
           ),
           actions: [
             ElevatedButton(
@@ -169,9 +205,11 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.black,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10)),
               ),
-              child: const Text('BRING IT ON', style: TextStyle(fontWeight: FontWeight.w900)),
+              child: const Text('BRING IT ON',
+                  style: TextStyle(fontWeight: FontWeight.w900)),
             ),
           ],
         ),
@@ -189,14 +227,19 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
           backgroundColor: Colors.transparent,
           elevation: 0,
           leading: AnimatedOpacity(
-            opacity: _pageController.hasClients && _pageController.page == 1 ? 1.0 : 0.0,
+            opacity: _pageController.hasClients && _pageController.page == 1
+                ? 1.0
+                : 0.0,
             duration: const Duration(milliseconds: 200),
             child: IconButton(
-              icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.textPrimary, size: 20),
+              icon: const Icon(Icons.arrow_back_ios_new,
+                  color: AppColors.textPrimary, size: 20),
               onPressed: () {
                 if (_pageController.hasClients && _pageController.page == 1) {
-                  _pageController.previousPage(duration: const Duration(milliseconds: 400), curve: Curves.easeInOut);
-                  setState(() {}); 
+                  _pageController.previousPage(
+                      duration: const Duration(milliseconds: 400),
+                      curve: Curves.easeInOut);
+                  setState(() {});
                 }
               },
             ),
@@ -211,43 +254,122 @@ class _ProfileSetupScreenState extends ConsumerState<ProfileSetupScreen>
               onPageChanged: (_) => setState(() {}),
               children: [
                 _NamePage(
-                  controller: _nameController, 
+                  controller: _nameController,
                   onContinue: _nextPage,
-                  showBrutalSnackbar: _showBrutalSnackbar,
+                  errorText: _nameErrorText,
                 ),
                 _ProfileSetupPage(
+                  name: _nameController.text.trim(),
                   heightController: _heightController,
                   weightController: _weightController,
                   targetWeightController: _targetWeightController,
                   weeklyGoal: _weeklyGoal,
+                  heightErrorText: _heightErrorText,
+                  weightErrorText: _weightErrorText,
+                  targetWeightErrorText: _targetWeightErrorText,
+                  weeklyGoalErrorText: _weeklyGoalErrorText,
                   onGoalChanged: (v) {
-                    setState(() => _weeklyGoal = v);
-                    switch (v) {
-                      case 1:
-                        _showBrutalSnackbar('1 day?! Why are you even bothering? Stay at your house.');
-                        break;
-                      case 2:
-                        _showBrutalSnackbar('2 days. You think that builds muscle? Have fun staying exactly the same.');
-                        break;
-                      case 3:
-                        _showBrutalSnackbar('3 days? Bare minimum. You can do better.');
-                        break;
-                      case 4:
-                        _showBrutalSnackbar('4 days. Now we\'re talking. Still room for improvement though.');
-                        break;
-                      case 5:
-                        _showBrutalSnackbar('5 days? Good. Keep that energy when your body aches.');
-                        break;
-                      case 6:
-                        _showBrutalSnackbar('6 days. Big talk. Let\'s see if you survive the week.');
-                        break;
-                      case 7:
-                        _showBrutalSnackbar('7 days? You\'re either a machine or lying to yourself. We\'ll see.');
-                        break;
-                    }
+                    setState(() {
+                      _weeklyGoal = v;
+                      switch (v) {
+                        case 1:
+                          _weeklyGoalErrorText =
+                              '1 day?! Why are you even bothering? Stay at your house.';
+                          break;
+                        case 2:
+                          _weeklyGoalErrorText =
+                              '2 days. You think that builds muscle? Have fun staying exactly the same.';
+                          break;
+                        case 3:
+                          _weeklyGoalErrorText =
+                              '3 days? Bare minimum. You can do better.';
+                          break;
+                        case 4:
+                          _weeklyGoalErrorText =
+                              '4 days. Now we\'re talking. Still room for improvement though.';
+                          break;
+                        case 5:
+                          _weeklyGoalErrorText =
+                              '5 days? Good. Keep that energy when your body aches.';
+                          break;
+                        case 6:
+                          _weeklyGoalErrorText =
+                              '6 days. Big talk. Let\'s see if you survive the week.';
+                          break;
+                        case 7:
+                          _weeklyGoalErrorText =
+                              '7 days? You\'re either a machine or lying to yourself. We\'ll see.';
+                          break;
+                      }
+                    });
                   },
                   onFinish: _finish,
-                  showBrutalSnackbar: _showBrutalSnackbar,
+                  onHeightChanged: (val) {
+                    setState(() {
+                      final h = double.tryParse(val);
+                      if (h != null) {
+                        if (h <= 0)
+                          _heightErrorText = '0 height? So you don\'t exist?';
+                        else if (h < 150)
+                          _heightErrorText =
+                              'Bit short, aren\'t we? Lift heavy anyway.';
+                        else if (h > 195 && h < 250)
+                          _heightErrorText =
+                              'Tall guys have no excuses. Fill out that frame.';
+                        else if (h >= 250)
+                          _heightErrorText =
+                              'Stop lying. You are not 250cm tall.';
+                        else
+                          _heightErrorText = null;
+                      } else {
+                        _heightErrorText = null;
+                      }
+                    });
+                  },
+                  onWeightChanged: (val) {
+                    setState(() {
+                      final w = double.tryParse(val);
+                      if (w != null) {
+                        if (w <= 0)
+                          _weightErrorText =
+                              'Zero weight? Physics doesn\'t work like that here.';
+                        else if (w < 50)
+                          _weightErrorText =
+                              'You weigh nothing. You need to eat. Immediately.';
+                        else if (w > 120 && w < 300)
+                          _weightErrorText =
+                              'Carrying a lot of excess baggage. Time to put in work.';
+                        else if (w >= 300)
+                          _weightErrorText =
+                              'Over 300kg? Put the fork down right now.';
+                        else
+                          _weightErrorText = null;
+                      } else {
+                        _weightErrorText = null;
+                      }
+                    });
+                  },
+                  onTargetWeightChanged: (val) {
+                    setState(() {
+                      final t = double.tryParse(val);
+                      final w = double.tryParse(_weightController.text);
+                      if (t != null && w != null) {
+                        if (t == w)
+                          _targetWeightErrorText =
+                              'Target equals current? Complacency gets you nowhere.';
+                        else if (t < 40)
+                          _targetWeightErrorText =
+                              'Aiming for a skeleton build? Dream bigger.';
+                        else if ((w - t).abs() > 40)
+                          _targetWeightErrorText =
+                              'Big dreams. But can you survive the reality of the work?';
+                        else
+                          _targetWeightErrorText = null;
+                      } else {
+                        _targetWeightErrorText = null;
+                      }
+                    });
+                  },
                 ),
               ],
             ),
@@ -274,11 +396,12 @@ class _PageShell extends StatelessWidget {
 class _NamePage extends StatelessWidget {
   final TextEditingController controller;
   final VoidCallback onContinue;
-  final void Function(String) showBrutalSnackbar;
+  final String? errorText;
+
   const _NamePage({
-    required this.controller, 
+    required this.controller,
     required this.onContinue,
-    required this.showBrutalSnackbar,
+    this.errorText,
   });
 
   @override
@@ -304,13 +427,6 @@ class _NamePage extends StatelessWidget {
           TextField(
             controller: controller,
             textCapitalization: TextCapitalization.words,
-            onChanged: (val) {
-              if (val.isNotEmpty && val.length < 3) {
-                showBrutalSnackbar('"$val"? Do you have a real name or just letters?');
-              } else if (val.length > 20) {
-                showBrutalSnackbar('Alright Your Highness, keep it short. We don\'t got all day.');
-              }
-            },
             style: const TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.w700,
@@ -321,12 +437,24 @@ class _NamePage extends StatelessWidget {
                   TextStyle(color: AppColors.textHint.withValues(alpha: 0.5)),
               border: InputBorder.none,
               enabledBorder: const UnderlineInputBorder(
-                  borderSide: BorderSide(color: AppColors.borderDark, width: 2)),
-              focusedBorder: const UnderlineInputBorder(
                   borderSide:
-                      BorderSide(color: AppColors.primary, width: 2)),
+                      BorderSide(color: AppColors.borderDark, width: 2)),
+              focusedBorder: const UnderlineInputBorder(
+                  borderSide: BorderSide(color: AppColors.primary, width: 2)),
             ),
           ),
+          if (errorText != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: Text(
+                errorText!,
+                style: const TextStyle(
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
+              ),
+            ),
           const Spacer(flex: 2),
           _PrimaryButton(label: 'THAT\'S ME', onPressed: onContinue),
         ],
@@ -336,22 +464,37 @@ class _NamePage extends StatelessWidget {
 }
 
 class _ProfileSetupPage extends StatelessWidget {
+  final String name;
   final TextEditingController heightController;
   final TextEditingController weightController;
   final TextEditingController targetWeightController;
   final int weeklyGoal;
   final ValueChanged<int> onGoalChanged;
   final VoidCallback onFinish;
-  final void Function(String) showBrutalSnackbar;
+  final ValueChanged<String>? onHeightChanged;
+  final ValueChanged<String>? onWeightChanged;
+  final ValueChanged<String>? onTargetWeightChanged;
+
+  final String? heightErrorText;
+  final String? weightErrorText;
+  final String? targetWeightErrorText;
+  final String? weeklyGoalErrorText;
 
   const _ProfileSetupPage({
+    required this.name,
     required this.heightController,
     required this.weightController,
     required this.targetWeightController,
     required this.weeklyGoal,
     required this.onGoalChanged,
     required this.onFinish,
-    required this.showBrutalSnackbar,
+    this.onHeightChanged,
+    this.onWeightChanged,
+    this.onTargetWeightChanged,
+    this.heightErrorText,
+    this.weightErrorText,
+    this.targetWeightErrorText,
+    this.weeklyGoalErrorText,
   });
 
   @override
@@ -362,62 +505,41 @@ class _ProfileSetupPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 16),
-            const Text(
-              'Set up your profile.',
-              style: TextStyle(
+            Text(
+              'Welcome, ${name.isEmpty ? "Nobody" : name}.',
+              style: const TextStyle(
                   fontSize: 30,
                   fontWeight: FontWeight.w800,
                   color: AppColors.textPrimary),
             ),
             const SizedBox(height: 6),
             const Text(
-              'We need these to track your progress. No vague answers.',
+              'Now finish your profile. And don\'t lie about your numbers, we\'ll know.',
               style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
             ),
             const SizedBox(height: 28),
             _InputField(
-                label: 'Height (cm)',
-                controller: heightController,
-                inputType: TextInputType.number,
-                onChanged: (val) {
-                  final h = double.tryParse(val);
-                  if (h != null) {
-                    if (h <= 0) showBrutalSnackbar('0 height? So you don\'t exist?');
-                    else if (h < 150) showBrutalSnackbar('Bit short, aren\'t we? Lift heavy anyway.');
-                    else if (h > 195 && h < 250) showBrutalSnackbar('Tall guys have no excuses. Fill out that frame.');
-                    else if (h >= 250) showBrutalSnackbar('Stop lying. You are not 250cm tall.');
-                  }
-                },
+              label: 'Height (cm)',
+              controller: heightController,
+              inputType: TextInputType.number,
+              onChanged: onHeightChanged,
+              errorText: heightErrorText,
             ),
             const SizedBox(height: 16),
             _InputField(
-                label: 'Current Weight (kg)',
-                controller: weightController,
-                inputType: TextInputType.number,
-                onChanged: (val) {
-                  final w = double.tryParse(val);
-                  if (w != null) {
-                    if (w <= 0) showBrutalSnackbar('Zero weight? Physics doesn\'t work like that here.');
-                    else if (w < 50) showBrutalSnackbar('You weigh nothing. You need to eat. Immediately.');
-                    else if (w > 120 && w < 300) showBrutalSnackbar('Carrying a lot of excess baggage. Time to put in work.');
-                    else if (w >= 300) showBrutalSnackbar('Over 300kg? Put the fork down right now.');
-                  }
-                },
+              label: 'Current Weight (kg)',
+              controller: weightController,
+              inputType: TextInputType.number,
+              onChanged: onWeightChanged,
+              errorText: weightErrorText,
             ),
             const SizedBox(height: 16),
             _InputField(
-                label: 'Target Weight (kg)',
-                controller: targetWeightController,
-                inputType: TextInputType.number,
-                onChanged: (val) {
-                  final t = double.tryParse(val);
-                  final w = double.tryParse(weightController.text);
-                  if (t != null && w != null) {
-                    if (t == w) showBrutalSnackbar('Target equals current? Complacency gets you nowhere.');
-                    else if (t < 40) showBrutalSnackbar('Aiming for a skeleton build? Dream bigger.');
-                    else if ((w - t).abs() > 40) showBrutalSnackbar('Big dreams. But can you survive the reality of the work?');
-                  }
-                },
+              label: 'Target Weight (kg)',
+              controller: targetWeightController,
+              inputType: TextInputType.number,
+              onChanged: onTargetWeightChanged,
+              errorText: targetWeightErrorText,
             ),
             const SizedBox(height: 24),
             const Text(
@@ -440,9 +562,7 @@ class _ProfileSetupPage extends StatelessWidget {
                     width: 36,
                     height: 36,
                     decoration: BoxDecoration(
-                      color: selected
-                          ? AppColors.primary
-                          : AppColors.cardDark,
+                      color: selected ? AppColors.primary : AppColors.cardDark,
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(
                           color: selected
@@ -463,6 +583,18 @@ class _ProfileSetupPage extends StatelessWidget {
                 );
               }),
             ),
+            if (weeklyGoalErrorText != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 12),
+                child: Text(
+                  weeklyGoalErrorText!,
+                  style: const TextStyle(
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                  ),
+                ),
+              ),
             const SizedBox(height: 36),
             _PrimaryButton(label: 'LET\'S GET TO WORK', onPressed: onFinish),
             const SizedBox(height: 16),
@@ -478,12 +610,14 @@ class _InputField extends StatelessWidget {
   final TextEditingController controller;
   final TextInputType inputType;
   final ValueChanged<String>? onChanged;
+  final String? errorText;
 
   const _InputField({
     required this.label,
     required this.controller,
     required this.inputType,
     this.onChanged,
+    this.errorText,
   });
 
   @override
@@ -519,6 +653,18 @@ class _InputField extends StatelessWidget {
                 const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           ),
         ),
+        if (errorText != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: Text(
+              errorText!,
+              style: const TextStyle(
+                color: AppColors.primary,
+                fontWeight: FontWeight.bold,
+                fontSize: 13,
+              ),
+            ),
+          ),
       ],
     );
   }
@@ -545,9 +691,7 @@ class _PrimaryButton extends StatelessWidget {
         ),
         child: Text(label,
             style: const TextStyle(
-                fontWeight: FontWeight.w800,
-                fontSize: 15,
-                letterSpacing: 0.5)),
+                fontWeight: FontWeight.w800, fontSize: 15, letterSpacing: 0.5)),
       ),
     );
   }
