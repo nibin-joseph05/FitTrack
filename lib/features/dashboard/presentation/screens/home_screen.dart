@@ -2,8 +2,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/utils/date_utils.dart';
-import '../../../../core/utils/motivation_utils.dart';
-import '../../../../core/utils/personality_messages.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/today_workout_card.dart';
@@ -13,6 +11,9 @@ import '../../../workout/presentation/providers/workout_provider.dart';
 import '../../../profile/presentation/providers/profile_provider.dart';
 import '../../../attendance/presentation/providers/attendance_provider.dart';
 import '../../../profile/presentation/screens/profile_screen.dart';
+import '../../../../core/utils/personality_messages.dart';
+import '../widgets/home_header.dart';
+import '../widgets/custom_bottom_nav.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -82,7 +83,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
         child: const Icon(Icons.fitness_center),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: _CustomBottomNav(
+      bottomNavigationBar: CustomBottomNav(
         currentIndex: _currentIndex,
         onTap: (index) {
           setState(() {
@@ -231,7 +232,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                             child: Container(
                               color: AppColors.backgroundDark
                                   .withValues(alpha: 0.8),
-                              child: _HomeHeader(
+                              child: HomeHeader(
                                 userName: userName,
                                 onProfileTap: () {
                                   setState(() {
@@ -249,145 +250,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                   );
                 },
               ),
-      ),
-    );
-  }
-}
-
-class _HomeHeader extends StatelessWidget {
-  final String userName;
-  final VoidCallback onProfileTap;
-  final VoidCallback onMotivationTap;
-
-  const _HomeHeader({
-    required this.userName,
-    required this.onProfileTap,
-    required this.onMotivationTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                RichText(
-                  text: TextSpan(
-                    text: '${PersonalityMessages.timeBasedGreeting()}, ',
-                    style: const TextStyle(
-                      color: AppColors.textSecondary,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w500,
-                    ),
-                    children: [
-                      TextSpan(
-                        text: userName,
-                        style: const TextStyle(
-                          color: AppColors.textPrimary,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: -0.5,
-                        ),
-                      ),
-                    ],
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  '"${MotivationUtils.getTodayQuote()}"',
-                  style: const TextStyle(
-                    color: AppColors.primary,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    fontStyle: FontStyle.italic,
-                  ),
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 12),
-          Row(
-            children: [
-              IconButton(
-                onPressed: onMotivationTap,
-                icon: const Icon(Icons.local_fire_department,
-                    color: AppColors.primary),
-                tooltip: 'Daily Motivation',
-              ),
-              GestureDetector(
-                onTap: onProfileTap,
-                child: Container(
-                  width: 42,
-                  height: 42,
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                        colors: [AppColors.primary, AppColors.accent]),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Center(
-                    child: Text(
-                      userName.isNotEmpty ? userName[0].toUpperCase() : 'F',
-                      style: const TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.w900,
-                          fontSize: 18),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _CustomBottomNav extends StatelessWidget {
-  final int currentIndex;
-  final ValueChanged<int> onTap;
-
-  const _CustomBottomNav({
-    required this.currentIndex,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return BottomAppBar(
-      color: AppColors.cardDark,
-      shape: const CircularNotchedRectangle(),
-      notchMargin: 8.0,
-      elevation: 20,
-      height: 65,
-      padding: EdgeInsets.zero,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          IconButton(
-            icon: Icon(Icons.home,
-                color:
-                    currentIndex == 0 ? AppColors.primary : AppColors.textHint,
-                size: 28),
-            onPressed: () => onTap(0),
-          ),
-          const SizedBox(width: 48),
-          IconButton(
-            icon: Icon(currentIndex == 1 ? Icons.person : Icons.person_outline,
-                color:
-                    currentIndex == 1 ? AppColors.primary : AppColors.textHint,
-                size: 28),
-            onPressed: () => onTap(1),
-          ),
-        ],
       ),
     );
   }
