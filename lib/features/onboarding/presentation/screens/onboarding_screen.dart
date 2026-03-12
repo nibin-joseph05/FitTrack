@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/router/app_router.dart';
-import '../../../profile/presentation/providers/profile_provider.dart';
+
 
 class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});
@@ -15,13 +15,6 @@ class OnboardingScreen extends ConsumerStatefulWidget {
 class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
     with TickerProviderStateMixin {
   final PageController _pageController = PageController();
-
-
-  final _nameController = TextEditingController();
-  final _heightController = TextEditingController();
-  final _weightController = TextEditingController();
-  final _targetWeightController = TextEditingController();
-  int _weeklyGoal = 4;
 
   late AnimationController _fadeController;
   late Animation<double> _fadeAnim;
@@ -39,10 +32,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
   @override
   void dispose() {
     _pageController.dispose();
-    _nameController.dispose();
-    _heightController.dispose();
-    _weightController.dispose();
-    _targetWeightController.dispose();
     _fadeController.dispose();
     super.dispose();
   }
@@ -56,30 +45,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
     _fadeController.forward();
   }
 
-  Future<void> _finish() async {
-    final name = _nameController.text.trim();
-    final heightText = _heightController.text.trim();
-    final weightText = _weightController.text.trim();
-    final targetText = _targetWeightController.text.trim();
-
-    if (name.isEmpty || heightText.isEmpty || weightText.isEmpty || targetText.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Fill in all fields. No excuses.')),
-      );
-      return;
-    }
-
-    await ref.read(profileProvider.notifier).completeOnboarding(
-          name: name,
-          height: double.tryParse(heightText) ?? 170.0,
-          currentWeight: double.tryParse(weightText) ?? 70.0,
-          targetWeight: double.tryParse(targetText) ?? 70.0,
-          weeklyGoal: _weeklyGoal,
-        );
-
-    if (mounted) {
-      Navigator.pushReplacementNamed(context, AppRoutes.home);
-    }
+  void _startProfileSetup() {
+    Navigator.pushReplacementNamed(context, AppRoutes.profileSetup);
   }
 
   @override
@@ -95,16 +62,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
             onPageChanged: (_) {},
             children: [
               _WelcomePage(onContinue: _nextPage),
-              _PrivacyPage(onContinue: _nextPage),
-              _NamePage(controller: _nameController, onContinue: _nextPage),
-              _ProfileSetupPage(
-                heightController: _heightController,
-                weightController: _weightController,
-                targetWeightController: _targetWeightController,
-                weeklyGoal: _weeklyGoal,
-                onGoalChanged: (v) => setState(() => _weeklyGoal = v),
-                onFinish: _finish,
-              ),
+              _PrivacyPage(onContinue: _startProfileSetup),
             ],
           ),
         ),
@@ -130,27 +88,85 @@ class _WelcomePage extends StatelessWidget {
   final VoidCallback onContinue;
   const _WelcomePage({required this.onContinue});
 
+  void _showQuitDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.backgroundDark,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: const BorderSide(color: AppColors.borderDark, width: 2),
+        ),
+        title: const Text(
+          'Giving up already?',
+          style: TextStyle(
+              color: AppColors.textPrimary,
+              fontWeight: FontWeight.w800,
+              fontSize: 22,
+              letterSpacing: -0.5),
+        ),
+        content: const Text(
+          'Sure, close the app. The couch is calling. Your comfort zone will always be there to keep you exactly where you are right now.\n\nEnjoy staying average.',
+          style: TextStyle(color: AppColors.textSecondary, fontSize: 15, height: 1.5),
+        ),
+        actionsPadding: const EdgeInsets.only(right: 16, bottom: 16),
+        actions: [
+          TextButton(
+            onPressed: () => SystemNavigator.pop(),
+            child: const Text('YEAH, I\'M WEAK (EXIT)', style: TextStyle(color: AppColors.textHint, fontWeight: FontWeight.bold)),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.black,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+            child: const Text('I\'M STAYING', style: TextStyle(fontWeight: FontWeight.w800)),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return _PageShell(
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           const Spacer(),
           Container(
             width: 80,
             height: 80,
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                  colors: [AppColors.primary, AppColors.accent]),
               borderRadius: BorderRadius.circular(22),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.primary.withValues(alpha: 0.2),
+                  blurRadius: 24,
+                  offset: const Offset(0, 8),
+                ),
+              ],
             ),
-            child: const Icon(Icons.fitness_center,
-                color: Colors.black, size: 44),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(22),
+              child: Image.asset(
+                'assets/logo/logo.png',
+                width: 80,
+                height: 80,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => Container(
+                  color: AppColors.cardDark,
+                  child: const Icon(Icons.fitness_center, color: AppColors.primary, size: 40),
+                ),
+              ),
+            ),
           ),
           const SizedBox(height: 32),
           const Text(
-            'FitTrack.',
+            'Welcome.',
+            textAlign: TextAlign.center,
             style: TextStyle(
                 fontSize: 44,
                 fontWeight: FontWeight.w900,
@@ -159,7 +175,8 @@ class _WelcomePage extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           const Text(
-            'No soft boys allowed.',
+            'True results demand true pain.',
+            textAlign: TextAlign.center,
             style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.w700,
@@ -167,10 +184,10 @@ class _WelcomePage extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           const Text(
-            'You\'re about to enter the fitness world. This place is not soft.\n\n'
-            'This app will push you. It will call you out when you slack. It uses aggressive language to wake you up. '
-            'If you can\'t handle the heat, hit the back button. '
-            'If you\'re ready to actually put in the work — welcome.',
+            'A great physique isn\'t handed out—it\'s forged through brutal, consistent hard work. '
+            'This app will push you to your limits and hold you accountable.\n\n'
+            'If you\'re looking for an easy way out, quit now. If you\'re ready to put in the work, step inside.',
+            textAlign: TextAlign.center,
             style: TextStyle(
                 fontSize: 15,
                 color: AppColors.textSecondary,
@@ -178,13 +195,21 @@ class _WelcomePage extends StatelessWidget {
           ),
           const Spacer(flex: 2),
           _PrimaryButton(label: 'I\'M READY. LET\'S GO', onPressed: onContinue),
-          const SizedBox(height: 14),
+          const SizedBox(height: 16),
+          const Center(
+            child: Text(
+              'By continuing, you accept our Privacy Policy.',
+              style: TextStyle(fontSize: 12, color: AppColors.textHint),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          const SizedBox(height: 16),
           Center(
             child: TextButton(
-              onPressed: () => SystemNavigator.pop(),
+              onPressed: () => _showQuitDialog(context),
               child: const Text(
-                'I\'m not ready (Exit App)',
-                style: TextStyle(color: AppColors.textHint),
+                'I\'m not ready (Exit)',
+                style: TextStyle(color: AppColors.textHint, decoration: TextDecoration.underline),
               ),
             ),
           ),
@@ -203,13 +228,14 @@ class _PrivacyPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return _PageShell(
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           const Spacer(),
           const Icon(Icons.lock_outline, color: AppColors.primary, size: 48),
           const SizedBox(height: 24),
           const Text(
             'Your data stays with you.',
+            textAlign: TextAlign.center,
             style: TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.w800,
@@ -224,27 +250,25 @@ class _PrivacyPage extends StatelessWidget {
                 'We don\'t know who you are. We don\'t want to. Your privacy is absolute.'),
           ].map(
             (item) => Padding(
-              padding: const EdgeInsets.only(bottom: 16),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              padding: const EdgeInsets.only(bottom: 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   const Icon(Icons.check_circle,
-                      color: AppColors.primary, size: 20),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(item.$1,
-                            style: const TextStyle(
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.textPrimary)),
-                        Text(item.$2,
-                            style: const TextStyle(
-                                color: AppColors.textSecondary, height: 1.5)),
-                      ],
-                    ),
-                  ),
+                      color: AppColors.primary, size: 28),
+                  const SizedBox(height: 8),
+                  Text(item.$1,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textPrimary)),
+                  const SizedBox(height: 4),
+                  Text(item.$2,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                          fontSize: 14,
+                          color: AppColors.textSecondary, height: 1.5)),
                 ],
               ),
             ),
@@ -258,211 +282,6 @@ class _PrivacyPage extends StatelessWidget {
   }
 }
 
-class _NamePage extends StatelessWidget {
-  final TextEditingController controller;
-  final VoidCallback onContinue;
-  const _NamePage({required this.controller, required this.onContinue});
-
-  @override
-  Widget build(BuildContext context) {
-    return _PageShell(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Spacer(),
-          const Text(
-            'What should we call you?',
-            style: TextStyle(
-                fontSize: 30,
-                fontWeight: FontWeight.w800,
-                color: AppColors.textPrimary),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'Don\'t overthink it. Just your name. We\'ll be using it a lot.',
-            style: TextStyle(color: AppColors.textSecondary, fontSize: 15),
-          ),
-          const SizedBox(height: 32),
-          TextField(
-            controller: controller,
-            textCapitalization: TextCapitalization.words,
-            style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary),
-            decoration: InputDecoration(
-              hintText: 'Your name...',
-              hintStyle:
-                  TextStyle(color: AppColors.textHint.withValues(alpha: 0.5)),
-              border: InputBorder.none,
-              enabledBorder: const UnderlineInputBorder(
-                  borderSide: BorderSide(color: AppColors.borderDark, width: 2)),
-              focusedBorder: const UnderlineInputBorder(
-                  borderSide:
-                      BorderSide(color: AppColors.primary, width: 2)),
-            ),
-          ),
-          const Spacer(flex: 2),
-          _PrimaryButton(label: 'THAT\'S ME', onPressed: onContinue),
-        ],
-      ),
-    );
-  }
-}
-
-class _ProfileSetupPage extends StatelessWidget {
-  final TextEditingController heightController;
-  final TextEditingController weightController;
-  final TextEditingController targetWeightController;
-  final int weeklyGoal;
-  final ValueChanged<int> onGoalChanged;
-  final VoidCallback onFinish;
-
-  const _ProfileSetupPage({
-    required this.heightController,
-    required this.weightController,
-    required this.targetWeightController,
-    required this.weeklyGoal,
-    required this.onGoalChanged,
-    required this.onFinish,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return _PageShell(
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 16),
-            const Text(
-              'Set up your profile.',
-              style: TextStyle(
-                  fontSize: 30,
-                  fontWeight: FontWeight.w800,
-                  color: AppColors.textPrimary),
-            ),
-            const SizedBox(height: 6),
-            const Text(
-              'We need these to track your progress. No vague answers.',
-              style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
-            ),
-            const SizedBox(height: 28),
-            _InputField(
-                label: 'Height (cm)',
-                controller: heightController,
-                inputType: TextInputType.number),
-            const SizedBox(height: 16),
-            _InputField(
-                label: 'Current Weight (kg)',
-                controller: weightController,
-                inputType: TextInputType.number),
-            const SizedBox(height: 16),
-            _InputField(
-                label: 'Target Weight (kg)',
-                controller: targetWeightController,
-                inputType: TextInputType.number),
-            const SizedBox(height: 24),
-            const Text(
-              'Weekly Gym Goal',
-              style: TextStyle(
-                  color: AppColors.textSecondary,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 10),
-            Row(
-              children: List.generate(7, (i) {
-                final day = i + 1;
-                final selected = weeklyGoal == day;
-                return GestureDetector(
-                  onTap: () => onGoalChanged(day),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    margin: const EdgeInsets.only(right: 8),
-                    width: 36,
-                    height: 36,
-                    decoration: BoxDecoration(
-                      color: selected
-                          ? AppColors.primary
-                          : AppColors.cardDark,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(
-                          color: selected
-                              ? AppColors.primary
-                              : AppColors.borderDark),
-                    ),
-                    child: Center(
-                      child: Text(
-                        '$day',
-                        style: TextStyle(
-                            color: selected
-                                ? Colors.black
-                                : AppColors.textSecondary,
-                            fontWeight: FontWeight.w700),
-                      ),
-                    ),
-                  ),
-                );
-              }),
-            ),
-            const SizedBox(height: 36),
-            _PrimaryButton(label: 'LET\'S GET TO WORK', onPressed: onFinish),
-            const SizedBox(height: 16),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _InputField extends StatelessWidget {
-  final String label;
-  final TextEditingController controller;
-  final TextInputType inputType;
-
-  const _InputField({
-    required this.label,
-    required this.controller,
-    required this.inputType,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label,
-            style: const TextStyle(
-                color: AppColors.textSecondary,
-                fontSize: 13,
-                fontWeight: FontWeight.w600)),
-        const SizedBox(height: 6),
-        TextField(
-          controller: controller,
-          keyboardType: inputType,
-          style: const TextStyle(
-              color: AppColors.textPrimary, fontWeight: FontWeight.w600),
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: AppColors.cardDark,
-            border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: AppColors.borderDark)),
-            enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: AppColors.borderDark)),
-            focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: AppColors.primary)),
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          ),
-        ),
-      ],
-    );
-  }
-}
 
 class _PrimaryButton extends StatelessWidget {
   final String label;

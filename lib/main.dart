@@ -46,13 +46,15 @@ Future<void> main() async {
   Hive.registerAdapter(ProfileModelAdapter());
   Hive.registerAdapter(AttendanceModelAdapter());
 
-  await Hive.openBox<ExerciseModel>(HiveBoxes.exercises);
-  await Hive.openBox<WorkoutLogModel>(HiveBoxes.workoutLogs);
-  await Hive.openBox<BodyMetricModel>(HiveBoxes.bodyMetrics);
-  await Hive.openBox<WorkoutSplitModel>(HiveBoxes.workoutSplits);
-  await Hive.openBox<TimerModel>(HiveBoxes.timers);
-  await Hive.openBox<ProfileModel>(HiveBoxes.profile);
-  await Hive.openBox<AttendanceModel>(HiveBoxes.attendance);
+  await Future.wait([
+    Hive.openBox<ExerciseModel>(HiveBoxes.exercises),
+    Hive.openBox<WorkoutLogModel>(HiveBoxes.workoutLogs),
+    Hive.openBox<BodyMetricModel>(HiveBoxes.bodyMetrics),
+    Hive.openBox<WorkoutSplitModel>(HiveBoxes.workoutSplits),
+    Hive.openBox<TimerModel>(HiveBoxes.timers),
+    Hive.openBox<ProfileModel>(HiveBoxes.profile),
+    Hive.openBox<AttendanceModel>(HiveBoxes.attendance),
+  ]);
 
   await _seedDefaultExercises();
 

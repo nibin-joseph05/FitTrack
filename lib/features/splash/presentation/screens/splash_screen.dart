@@ -28,12 +28,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   @override
   void initState() {
     super.initState();
-    SystemChrome.setSystemUIOverlayStyle(
-      const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.light,
-      ),
-    );
     
     _quote = SplashQuotes.quotes[DateTime.now().millisecondsSinceEpoch % SplashQuotes.quotes.length];
     
@@ -41,7 +35,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
 
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1200),
+      duration: const Duration(milliseconds: 1500),
     );
     _fadeAnimation = Tween<double>(begin: 0, end: 1).animate(
       CurvedAnimation(parent: _controller, curve: const Interval(0, 0.6)),
@@ -53,7 +47,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     
     _controller.forward();
     
-    Future.delayed(const Duration(milliseconds: 2500), () {
+    Future.delayed(const Duration(seconds: 3), () {
       if (mounted) {
         _navigateNext();
       }

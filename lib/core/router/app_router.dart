@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../features/splash/presentation/screens/splash_screen.dart';
 import '../../features/dashboard/presentation/screens/home_screen.dart';
 import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
+import '../../features/onboarding/presentation/screens/profile_setup_screen.dart';
 import '../../features/motivation/presentation/screens/daily_motivation_screen.dart';
 import '../../features/workout/presentation/screens/workout_log_screen.dart';
 import '../../features/workout/presentation/screens/workout_history_screen.dart';
@@ -23,6 +24,7 @@ import '../../features/workout/domain/entities/workout_split_entity.dart';
 class AppRoutes {
   static const String splash = '/';
   static const String onboarding = '/onboarding';
+  static const String profileSetup = '/profile-setup';
   static const String home = '/home';
   static const String workoutLog = '/workout-log';
   static const String workoutHistory = '/workout-history';
@@ -49,6 +51,8 @@ class AppRouter {
         return _fadeRoute(const SplashScreen(), settings);
       case AppRoutes.onboarding:
         return _fadeRoute(const OnboardingScreen(), settings);
+      case AppRoutes.profileSetup:
+        return _fadeRoute(const ProfileSetupScreen(), settings);
       case AppRoutes.home:
         return _fadeRoute(const HomeScreen(), settings);
       case AppRoutes.dailyMotivation:
