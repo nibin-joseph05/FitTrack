@@ -13,6 +13,7 @@ import '../../../attendance/presentation/providers/attendance_provider.dart';
 import '../../../profile/presentation/screens/profile_screen.dart';
 import '../../../../core/utils/personality_messages.dart';
 import '../widgets/home_header.dart';
+import '../widgets/attendance_calendar.dart';
 import '../widgets/custom_bottom_nav.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -121,7 +122,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                               opacity: _cardsFade,
                               child: Column(
                                 children: [
-                                  _WeeklyAttendanceGrid(
+                                  MonthlyAttendanceCalendar(
                                     attendedDays: attendedDaysThisWeek,
                                     weeklyGoal: weeklyGoal,
                                     attendanceHistory: attendanceHistoryAsync,
@@ -255,162 +256,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   }
 }
 
-class _WeeklyAttendanceGrid extends StatelessWidget {
-  final int attendedDays;
-  final int weeklyGoal;
-  final AsyncValue attendanceHistory;
-
-  const _WeeklyAttendanceGrid({
-    required this.attendedDays,
-    required this.weeklyGoal,
-    required this.attendanceHistory,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final now = DateTime.now();
-    final weekday = now.weekday;
-    final startOfWeek = now.subtract(Duration(days: weekday - 1));
-
-    final attendedDates = attendanceHistory.maybeWhen(
-      data: (list) => Set<String>.from(
-        (list as Iterable)
-            .cast<dynamic>()
-            .where((a) => a.attended == true)
-            .map((a) {
-          final d = a.date as DateTime;
-          return '${d.year}-${d.month}-${d.day}';
-        }),
-      ),
-      orElse: () => <String>{},
-    );
-
-    const dayLabels = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
-
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.cardDark,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.borderDark),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'This Week',
-                style: TextStyle(
-                    color: AppColors.textPrimary,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700),
-              ),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  '$attendedDays / $weeklyGoal days',
-                  style: const TextStyle(
-                      color: AppColors.primary,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 14),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: List.generate(7, (i) {
-              final dayDate = startOfWeek.add(Duration(days: i));
-              final dateKey = '${dayDate.year}-${dayDate.month}-${dayDate.day}';
-              final isToday = i + 1 == weekday;
-              final attended = attendedDates.contains(dateKey);
-              final isPast = dayDate.isBefore(now);
-
-              return Column(
-                children: [
-                  Text(
-                    dayLabels[i],
-                    style: TextStyle(
-                        color: isToday ? AppColors.primary : AppColors.textHint,
-                        fontSize: 12,
-                        fontWeight:
-                            isToday ? FontWeight.w800 : FontWeight.w500),
-                  ),
-                  const SizedBox(height: 6),
-                  AnimatedContainer(
-                    duration: const Duration(milliseconds: 300),
-                    width: 34,
-                    height: 34,
-                    decoration: BoxDecoration(
-                      color: attended
-                          ? AppColors.primary
-                          : isToday
-                              ? AppColors.primary.withValues(alpha: 0.15)
-                              : isPast
-                                  ? AppColors.cardDark
-                                  : AppColors.backgroundDark,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(
-                        color: isToday
-                            ? AppColors.primary
-                            : attended
-                                ? AppColors.primary
-                                : AppColors.borderDark,
-                        width: isToday ? 2 : 1,
-                      ),
-                    ),
-                    child: Center(
-                      child: attended
-                          ? const Icon(Icons.check,
-                              color: Colors.black, size: 16)
-                          : Text(
-                              '${dayDate.day}',
-                              style: TextStyle(
-                                color: isToday
-                                    ? AppColors.primary
-                                    : AppColors.textHint,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                    ),
-                  ),
-                ],
-              );
-            }),
-          ),
-          const SizedBox(height: 12),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(6),
-            child: TweenAnimationBuilder<double>(
-              tween: Tween(
-                  begin: 0, end: (attendedDays / weeklyGoal).clamp(0.0, 1.0)),
-              duration: const Duration(milliseconds: 900),
-              curve: Curves.easeOut,
-              builder: (_, value, __) => LinearProgressIndicator(
-                value: value,
-                minHeight: 6,
-                backgroundColor: AppColors.backgroundDark,
-                valueColor:
-                    const AlwaysStoppedAnimation<Color>(AppColors.primary),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class _AttendanceButton extends StatelessWidget {
   final bool hasAttended;
   final String userName;
@@ -459,8 +304,6 @@ class _AttendanceButton extends StatelessWidget {
                     fontWeight: FontWeight.w800,
                     fontSize: hasAttended ? 13 : 15,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
@@ -477,52 +320,45 @@ class _PersonalityMessageCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppColors.cardDark,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.borderDark),
-      ),
-      child: Row(
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(Icons.fitness_center,
-                color: AppColors.primary, size: 22),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
+          Row(
+            children: [
+              const Icon(Icons.info_outline, color: AppColors.textHint, size: 16),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
                   PersonalityMessages.skipWarning(userName),
                   style: const TextStyle(
-                      color: AppColors.textPrimary,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 13,
-                      height: 1.4),
-                ),
-                const SizedBox(height: 6),
-                GestureDetector(
-                  onTap: () =>
-                      Navigator.pushNamed(context, AppRoutes.workoutLog),
-                  child: const Text(
-                    'Start a session →',
-                    style: TextStyle(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 13),
+                    color: AppColors.textSecondary,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 14,
+                    fontStyle: FontStyle.italic,
                   ),
                 ),
-              ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          GestureDetector(
+            onTap: () => Navigator.pushNamed(context, AppRoutes.workoutLog),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Text(
+                'Start a session →',
+                style: TextStyle(
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 13,
+                ),
+              ),
             ),
           ),
         ],
